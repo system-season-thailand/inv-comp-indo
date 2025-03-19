@@ -1,0 +1,595 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap');
+
+
+
+
+
+
+/* All */
+* {
+    font-family: "Noto Kufi Arabic", sans-serif;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-weight: 400;
+}
+
+
+/* Body */
+body {
+    opacity: 0;
+    font-family: Arial, sans-serif;
+    transition: all 0.5s ease-in-out;
+}
+
+
+
+
+
+
+
+/* Special Effects */
+.black_overlay {
+    z-index: 999;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.6);
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: opacity 0.1s ease-in-out;
+}
+
+.bold_text {
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+
+
+#all_inv_office_insert_data_content {
+    margin: 20px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+table,
+th,
+td {
+    border: 1px solid #b2b2b2;
+}
+
+th,
+td {
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background: #f2f2f2;
+}
+
+textarea {
+    width: 100%;
+    height: 150px;
+    margin-bottom: 10px;
+    padding: 15px 5px;
+    font-size: 0.9rem;
+    font-family: monospace;
+}
+
+button {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+#all_saved_data_div_id {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+#all_saved_data_div_id * {
+    margin: 10px 15px;
+    border-radius: 7px;
+    width: fit-content;
+}
+
+.saved_box {
+    border: 0.5px solid black;
+    min-width: 100vw;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#whole_invoice_company_section_id {
+    background: white;
+    transition: all 0.1s ease-in-out;
+}
+
+#whole_invoice_company_section_id p,
+#whole_invoice_company_section_id h1,
+#whole_invoice_company_section_id h2,
+#whole_invoice_company_section_id h3,
+#whole_invoice_company_section_id h4,
+#whole_invoice_company_section_id h5,
+#whole_invoice_company_section_id h6 {
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+}
+
+#proforma_invoice_and_logo_div_id {
+    display: flex;
+    justify-content: space-around;
+}
+
+#proforma_invoice_and_logo_div_id img {
+    width: 15vmax;
+}
+
+#proforma_invoice_date_and_number_div_id {
+    padding: 0 5px;
+}
+
+#proforma_invoice_date_and_number_div_id p {
+    direction: ltr;
+    font-size: 2rem;
+    text-align: left;
+}
+
+#proforma_invoice_logo_and_location_div_id {
+    display: flex;
+    flex-direction: column;
+    padding: 0 5px;
+}
+
+#proforma_invoice_logo_and_location_div_id img {
+    align-self: center;
+}
+
+#proforma_invoice_logo_and_location_div_id p {
+    font-size: 2rem;
+    text-align: left;
+}
+
+#invoice_company_guest_name_div_id p {
+    direction: ltr;
+    width: 100%;
+    font-size: 1.7rem;
+    text-align: center;
+}
+
+#the_full_payment_is_required_2_weeks_prior_arrival_p_id {
+    font-weight: bolder;
+    width: 100%;
+    text-align: center;
+    font-size: 1.7rem;
+}
+
+
+
+
+
+/* Inserted Hotels data position */
+#main_inv_company_row_id {
+    background: rgb(6, 53, 62);
+    color: white;
+}
+
+
+.invoice_company_row_div_class {
+    margin: 0 10rem;
+    background: white;
+    direction: ltr;
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    border-bottom: 0.5px solid black;
+}
+
+.invoice_company_row_div_class div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-left: 0.5px solid black;
+}
+
+.invoice_company_row_div_class div * {
+    text-align: center;
+    direction: ltr;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding: 0 2px;
+}
+
+
+/* Reduce the width of "من" and "الى" cells */
+.invoice_company_row_div_class div:nth-child(1),
+.invoice_company_row_div_class div:nth-child(3),
+.invoice_company_row_div_class div:nth-child(4) {
+    flex-grow: 0.35;
+}
+
+
+/* Reduce the width of "وقت الوصول" cell */
+.invoice_company_row_div_class div:nth-child(8) {
+    border-left: none;
+    border-right: 0.5px solid black;
+}
+
+.last_invoice_company_row_div_class div:nth-child(1) {
+    flex-grow: 1;
+}
+
+.last_invoice_company_row_div_class div:nth-child(2) {
+    flex-grow: 0.519;
+}
+
+
+
+
+
+.invoice_company_bottom_payment_info_div_class * {
+    font-size: 1.4rem;
+    direction: ltr;
+    padding-left: 5rem;
+}
+
+
+
+
+
+
+
+/* Delete box message */
+.ensure_your_delete_action {
+    z-index: 1000;
+    background-color: white;
+    width: 95%;
+    padding: 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3px;
+    text-align: center;
+    box-shadow: 0 0 5px black;
+    transform: translate(-50%, -100vh);
+    transition: transform 0.5s ease;
+}
+
+.ensure_your_delete_action button {
+    color: black;
+    font-size: 3rem;
+    margin: 5px;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: 0.5px solid black;
+}
+
+.ensure_your_delete_action button:hover {
+    box-shadow: 0 0.5px 3px black;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Name pdf file box */
+#name_pdf_file_div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 1000;
+    top: 50%;
+    left: 50%;
+    box-shadow: 0 0 5px black;
+    border: 1px solid black;
+    transform: translate(-50%, -100vh);
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 95%;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: auto;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.5s ease;
+}
+
+#name_pdf_file_div input {
+    width: 100%;
+    font-size: 2vmax;
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 3px;
+}
+
+#name_pdf_file_div button {
+    background: #4CAF50;
+    font-size: 2.5vw;
+    margin-top: 10px;
+    padding: 1px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: 1px solid black;
+    transition: all 0.2s ease-in-out;
+}
+
+
+
+
+
+
+
+
+
+/* Download PDF Button - Fixed Top Left */
+#export_package_pdf_div_id {
+    position: fixed;
+    top: 50%;
+    right: 0px;
+    z-index: 1000;
+    /* Ensures it stays on top */
+}
+
+#export_package_pdf_div_id button {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    /* Smooth gradient */
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 40px 5px;
+    border: none;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    cursor: pointer;
+    box-shadow: -3px 0px 8px rgba(0, 0, 0, 0.5);
+    /* Shift shadow to the left */
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Hover effect */
+#export_package_pdf_div_id button:hover {
+    color: black;
+}
+
+
+
+
+
+
+
+
+
+/* Download PDF Button - Fixed Top Left */
+#import_saved_data_from_database_id {
+    position: fixed;
+    top: 50%;
+    left: 0px;
+    z-index: 1000;
+    /* Ensures it stays on top */
+}
+
+#import_saved_data_from_database_id button {
+    background: linear-gradient(135deg, #4c84af, #143b58);
+    /* Smooth gradient */
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 40px 5px;
+    border: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    cursor: pointer;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0);
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Hover effect */
+#import_saved_data_from_database_id button:hover {
+    color: black;
+}
+
+
+
+
+
+
+
+
+
+
+.red_text_color_class {
+    color: red;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Filter company names div */
+.searchable_names_dropdown_class {
+    z-index: 1000;
+    background: rgb(0, 93, 163);
+    width: 100%;
+    min-height: 50vh;
+    max-height: 50vh;
+    padding: 5px 0;
+    position: fixed;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    transform: translateY(100%);
+    transition: transform 0.1s ease-in-out, height 0.1s ease-in-out;
+}
+
+/* Visible state for the dropdown */
+.searchable_names_dropdown_class.show {
+    transform: translateY(0);
+}
+
+/* Search bar container */
+.search_bar_div_class {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: all 0.1s ease-in-out;
+}
+
+/* Search bar input */
+.search_bar_input_class {
+    text-align: center;
+    /* Align text to the left */
+    width: 100%;
+    font-size: 2vw;
+    padding: 10px 0;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    transition: all 0.1s ease-in-out;
+    box-sizing: border-box;
+    /* Ensure padding and border are included in the width */
+}
+
+/* To ensure the caret is visually aligned to the right of the text */
+.search_bar_input_class::placeholder {
+    direction: ltr;
+    /* Ensure placeholder text is also aligned correctly */
+}
+
+/* Company name options */
+.company_names_options_dropdown_class {
+    background: rgb(0, 93, 163);
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Style for the h3 elements */
+.company_names_options_dropdown_class h3 {
+    background: white;
+    width: fit-content;
+    font-size: 2.5vw;
+    margin: 5px;
+    padding: 0 10px;
+    border-radius: 3px;
+    box-shadow: 0 0 0.5px 0.5px black;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Importing and deleting data from localStorage */
+.google_sheet_dropdown_div_class h6 {
+    background: darkred;
+    color: white;
+    width: 100%;
+    font-size: 2vw;
+    text-align: center;
+    border: 0.5px solid black;
+}
+
+.google_sheet_dropdown_div_class p {
+    background: rgb(0, 87, 116);
+    color: white;
+    font-size: 2.5vw;
+    padding: 1px 5px;
+    text-align: center;
+    border: 0.5px solid black;
+    border-radius: 3px;
+    cursor: pointer;
+    align-self: flex-start;
+    margin-right: 5px;
+    transition: all 0.1s ease-in-out;
+}
+
+.google_sheet_dropdown_div_class ion-icon {
+    background: rgb(0, 87, 116);
+    color: white;
+    font-size: 5vw;
+    padding: 1px 5px;
+    text-align: center;
+    border: 0.5px solid black;
+    border-radius: 3px;
+    cursor: pointer;
+    align-self: flex-start;
+    margin-left: 5px;
+}

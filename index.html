@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic INV Office Data</title>
+
+    <!-- Import the Icon Library -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <link rel="stylesheet" href="inv-company-setup.css">
+
+</head>
+
+<body id="body">
+
+
+
+
+
+
+
+
+
+
+
+    <div id="all_inv_office_insert_data_content">
+
+
+        <h1>Dynamic INV Company Data</h1>
+
+        <textarea id="dataInput" placeholder="Paste your data here"></textarea>
+        <button onclick="playSoundEffect('click'); deleteTextAre()" style="background: red;">Reset</button>
+
+    </div>
+
+
+
+
+
+
+
+
+
+    <section id="whole_invoice_company_section_id">
+
+
+        <div id="proforma_invoice_and_logo_div_id">
+
+            <div id="proforma_invoice_logo_and_location_div_id">
+
+                <img src="season-logo.jpg" id="inv_comp_logo">
+
+                <p>Jl Raya Puncak KM 83,7 Tugu Selatan, Cisarua</p>
+                <p>Bogor, Jawa Barat (16750)</p>
+                <p>Telp. (0251) 8262973</p>
+
+            </div>
+
+
+
+            <div id="proforma_invoice_date_and_number_div_id">
+
+                <p style="font-weight: bolder;">PROFORMA INVOICE</p>
+                <p id="today_inv_company_date_p_id"></p>
+                <p>Inv No: F0</p>
+
+            </div>
+
+
+
+
+        </div>
+
+
+
+
+        <div id="invoice_company_guest_name_div_id">
+            <br>
+            <p id="invoice_company_guest_name_p_id">UP TO: (MR. )</p>
+            <p id="invoice_company_guest_code_p_id" style="display: none;">Code: ?
+            </p>
+            <br>
+            <p style="font-size: 1.4rem; text-align: left; padding: 10px; direction: ltr;">
+                Thank you for your interest in our specially designed package for your holidays in Indonesia.
+                Please find the pricing below for a few options that will surely answer your request, and I remain at
+                your disposal for further information or any modification of your itinerary or accommodation.
+            </p>
+        </div>
+
+
+
+        <br>
+
+
+
+        <div id="main_inv_company_row_id" class="invoice_company_row_div_class">
+            <div>
+                <p>Period</p>
+            </div>
+            <div>
+                <p>Accommodation</p>
+            </div>
+            <div>
+                <p>Location</p>
+            </div>
+            <div>
+                <p>Length of stay</p>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+        <div id="invoice_company_main_table_div_id">
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <br>
+
+
+
+        <p id="the_full_payment_is_required_2_weeks_prior_arrival_p_id">#THE FULL PAYMENT IS REQUIRED 2 WEEKS PRIOR
+            ARRIVAL#</p>
+
+
+
+
+
+
+        <br>
+        <br>
+
+
+
+
+
+
+        <div id="payment_details_1" class="invoice_company_bottom_payment_info_div_class">
+
+            <p>Please refer to above of your term of payment and settle your payment to our bank detail
+                below</p>
+
+
+            <pre>A/C Name                     : وكالة جزر الأحلام</pre>
+            <pre>Bank Name                   : NCB الأهلي</pre>
+            <pre>Account                        : 00800000601606</pre>
+            <pre>IBAN                            : SA8710000000800000601606</pre>
+
+
+
+            <br>
+
+
+            <p style="font-weight: bolder;">CANCELLATION & NO SHOW POLICY</p>
+
+
+            <p>* Cancellation or change in length of stay within 14 days prior to arrival on the normal season or 21
+                days prior to arrival on high
+                season (June-Aug) will charge 100% penalty</p>
+            <p>* No-show charges: 100% of Booking Amount</p>
+            <p>* Domestic flight cancellation depend on the flight refund policy</p>
+
+        </div>
+
+
+
+        <div id="payment_details_2" class="invoice_company_bottom_payment_info_div_class" style="display: none;">
+
+            <p>Please refer to above of your term of payment and settle your payment to our bank detail
+                below</p>
+
+
+            <pre>A/C Name                     : PT. FANADIQ INDONESIA</pre>
+            <pre>Bank Name                   : BRI</pre>
+            <pre>Account                        : 039001001477304</pre>
+
+
+            <br>
+
+
+            <p style="font-weight: bolder;">CANCELLATION & NO SHOW POLICY</p>
+
+
+            <p>* Cancellation or change in length of stay within 14 days prior to arrival on the normal season or 21
+                days prior to arrival on high
+                season (June-Aug) will charge 100% penalty</p>
+            <p>* No-show charges: 100% of Booking Amount</p>
+            <p>* Domestic flight cancellation depends on the flight refund policy</p>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Store the data here for later refrence when importing -->
+        <p id="store_google_sheet_guest_name" style="display: none;"></p>
+        <p id="store_google_sheet_company_name" style="display: none;"></p>
+        <p id="store_google_sheet_inv_number" style="display: none;"></p>
+        <p id="store_google_sheet_current_inv_company_rev_number_id" style="display: none;">0</p>
+
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Choose pdf file name box -->
+    <div id="name_pdf_file_div">
+        <input type="text" id="pdf_file_name_input_id" class="dynamic_direction_input_class" placeholder="File Name">
+        <button id="check_pdf_name_button" onclick="checkThePdfNameToDownload()">Download</button>
+    </div>
+
+
+    <div id="export_package_pdf_div_id">
+        <button onclick="openPdfDownloadBox()">Download</button>
+    </div>
+
+    <div id="import_saved_data_from_database_id">
+        <button
+            onclick="playSoundEffect('click'); showOverlay('import_google_sheet_data_names_dropdown')">Import</button>
+    </div>
+
+
+
+
+
+
+    <!-- Dropdown Div For Hotel Locations -->
+    <div id="import_google_sheet_data_names_dropdown"
+        class="searchable_names_dropdown_class google_sheet_dropdown_div_class">
+        <h6 id="import_packages_title_h6_id">Import Data</h6>
+
+
+        <div class="search_bar_div_class">
+            <input type="text" id="import_google_sheet_data_names_search_bar_input_id" class="search_bar_input_class"
+                placeholder="Search" style="direction: ltr;">
+        </div>
+
+
+
+        <div id="all_google_sheet_stored_data_names_for_importing_data_div"
+            class="company_names_options_dropdown_class">
+            <!-- Dynamic JS Code Here -->
+        </div>
+    </div>
+
+
+
+
+
+
+    <!-- Download PDF Link -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+
+
+
+
+    <script src="inv-company-database.js"></script>
+    <script src="inv-company-setup.js"></script>
+</body>
+
+</html>
