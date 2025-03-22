@@ -45,6 +45,11 @@ body {
     font-weight: bold;
 }
 
+.upper_case_text {
+    text-transform: uppercase;
+}
+
+
 
 
 
