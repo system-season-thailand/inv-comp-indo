@@ -7,9 +7,17 @@ let existingDataStatus = 'newData'; // Variable to identify if the data will be 
 var googleSheetWebAppUrl = "https://script.google.com/macros/s/AKfycbw6e3PX3_29Ydfa07dsCvybj_4e7POA7AgK69LMcxoYwBPZbn6HtqAsCNY9dGXHEneE1Q/exec";
 
 function sendDataToGoogleSheet() {
+    // Get values from the spans
+    var invNumber = document.getElementById("current_used_inv_number_span_id")?.innerText.trim() || "";
+    var guestName = document.getElementById("current_used_client_name_span_id").innerText.trim() || "";
+    var revNumber = document.getElementById("current_used_rev_number_span_id")?.innerText.trim() || "";
+
+    // Format the name
     var formattedName = revNumber === ''
         ? `${invNumber} ${guestName}`
-        : `${invNumber} ${guestName} Rev${revNumber}`;
+        : `${invNumber}-${revNumber} ${guestName}`;
+
+
 
     var wholeSection = document.getElementById("whole_invoice_company_section_id");
     var htmlContent = wholeSection ? wholeSection.innerHTML : '';
@@ -117,7 +125,7 @@ const loadAllData = async () => {
     /* Get the whole inv company div */
     const wholeInvoiceSection = document.getElementById("whole_invoice_company_section_id");
 
-    
+
     // Fetch the total number of rows
     let initialFetch = await fetchBatch(1, 1);
 
@@ -261,14 +269,10 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
 
         /* Set Today's Date */
         document.getElementById("today_inv_company_date_p_id").innerText =
-        `Date: ${new Date().getDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][new Date().getMonth()]} ${new Date().getFullYear()}`;
+            `Date: ${new Date().getDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][new Date().getMonth()]} ${new Date().getFullYear()}`;
 
 
 
-        /* Re-store the values to the variables again to use them later (when making pdf name) */
-        guestName = document.getElementById('store_google_sheet_guest_name').innerText;
-        companyName = document.getElementById('store_google_sheet_company_name').innerText;
-        invNumber = document.getElementById('store_google_sheet_inv_number').innerText;
 
 
 
@@ -276,8 +280,7 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
         let revNumElement = document.getElementById('store_google_sheet_current_inv_company_rev_number_id');
 
         let revNum = parseInt(revNumElement.innerText, 10) + 1;
-        document.querySelector("#proforma_invoice_date_and_number_div_id p:nth-child(3)").innerHTML = `Inv No: F${invNumber} <span class="bold_text">Rev${revNum}</span>`;
-        revNumber = revNum;
+        document.querySelector("#proforma_invoice_date_and_number_div_id p:nth-child(3)").innerHTML = `Inv No: F<span id="current_used_inv_number_span_id">${document.getElementById("current_used_inv_number_span_id").innerText}</span> <span id="current_used_rev_number_span_id" class="bold_text">Rev${revNum}</span>`;
         revNumElement.innerText = parseInt(revNumElement.innerText, 10) + 1;
 
 
