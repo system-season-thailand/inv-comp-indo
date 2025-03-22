@@ -109,11 +109,14 @@ function openPdfDownloadBox() {
     let lastTwoNumbersOfTheCurrentYear = currentYear % 100;
 
 
+
+
+
     /* check if the current inv company is going through rev or no */
-    if (revNumber !== '') {
-        document.getElementById('pdf_file_name_input_id').value = `Proforma INV ${companyName} ${invNumber}_${monthNumber}_${lastTwoNumbersOfTheCurrentYear} Rev${revNumber} ${guestName}`;
+    if (document.getElementById("current_used_rev_number_span_id")) {
+        document.getElementById('pdf_file_name_input_id').value = `Proforma INV ${document.getElementById("current_used_company_name_span_id").innerText} ${document.getElementById("current_used_inv_number_span_id").innerText}_${monthNumber}_${lastTwoNumbersOfTheCurrentYear} ${document.getElementById("current_used_rev_number_span_id").innerText} ${document.getElementById("current_used_client_name_span_id").innerText}`;
     } else {
-        document.getElementById('pdf_file_name_input_id').value = `Proforma INV ${companyName} ${invNumber}_${monthNumber}_${lastTwoNumbersOfTheCurrentYear} ${guestName}`;
+        document.getElementById('pdf_file_name_input_id').value = `Proforma INV ${document.getElementById("current_used_company_name_span_id").innerText} ${document.getElementById("current_used_inv_number_span_id").innerText}_${monthNumber}_${lastTwoNumbersOfTheCurrentYear} ${document.getElementById("current_used_client_name_span_id").innerText}`;
     }
 
 
@@ -150,11 +153,6 @@ function openPdfDownloadBox() {
 
 
 
-/* All stored values for the pdf file name */
-let guestName = '';
-let companyName = '';
-let invNumber = '';
-let revNumber = '';
 
 
 // Attach an event listener to the textarea
@@ -174,13 +172,9 @@ function processInvoiceData(data) {
     // Try to extract travel agency from parentheses, fallback to guestBy if not found
     const travelAgency = guestBy.match(/\(([^)]+)\)/)?.[1] || guestBy;
 
-    /* Store the values globally to use them as the file name */
-    companyName = travelAgency; // Now correctly uses fallback
-    invNumber = invoiceNo;
-    guestName = clientName;
 
-    document.querySelector("#proforma_invoice_date_and_number_div_id p:nth-child(3)").innerText = `Inv No: F${invoiceNo}`;
-    document.querySelector("#invoice_company_guest_name_p_id").innerHTML = `UP TO: <span class="bold_text">${travelAgency}</span> (${clientName})`;
+    document.querySelector("#proforma_invoice_date_and_number_div_id p:nth-child(3)").innerHTML = `Inv No: F<span id="current_used_inv_number_span_id">${invoiceNo}</span>`;
+    document.querySelector("#invoice_company_guest_name_p_id").innerHTML = `UP TO: <span id="current_used_company_name_span_id" class="bold_text upper_case_text">${travelAgency}</span></span> (<span id="current_used_client_name_span_id">${clientName}</span>)`;
 
 
 
@@ -361,35 +355,35 @@ function processInvoiceData(data) {
 
     const mergeDates = (startDate, endDate) => {
         if (!startDate || !endDate) return "N/A";
-    
+
         // Parse dates into parts
         const startParts = startDate.split(" ");
         const endParts = endDate.split(" ");
-    
+
         const [startDay, startMonth, startYear] = startParts;
         const [endDay, endMonth, endYear] = endParts;
-    
+
         // Case 1: Same year and same month → "6-9 Jul 2025"
         if (startYear === endYear && startMonth === endMonth) {
             return `${startDay} - ${endDay} ${startMonth} ${startYear}`;
         }
-    
+
         // Case 2: Same year but different months → "28 Apr - 2 May 2025"
         if (startYear === endYear) {
             return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${startYear}`;
         }
-    
+
         // Case 3: Different years → "27 Dec 2025 - 3 Jan 2026"
         return `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
     };
-    
+
     const createHotelRows = (data) => {
         const allHotelsDiv = document.createElement("div");
         allHotelsDiv.id = "all_hotels_rows_div_id";
-    
+
         data.forEach(item => {
             const mergedDate = mergeDates(item.startDate, item.endDate);
-    
+
             const rowDiv = document.createElement("div");
             rowDiv.className = "invoice_company_row_div_class";
             rowDiv.innerHTML = `
@@ -407,40 +401,40 @@ function processInvoiceData(data) {
                 <div style="border-right: 0.5px solid black;">
                     <p>${item.nights} Night${item.nights > 1 ? "s" : ""}</p>
                 </div>`;
-    
+
             allHotelsDiv.appendChild(rowDiv);
         });
-    
+
         document.getElementById("invoice_company_main_table_div_id").appendChild(allHotelsDiv);
     };
-    
+
 
 
 
     const getFlightDates = () => {
         const hotelRows = document.querySelectorAll(".invoice_company_row_div_class");
-    
+
         let locations = [];
         let checkOutDates = [];
-    
+
         hotelRows.forEach(row => {
             const location = row.querySelector(".hotel_location_value_class")?.innerText.trim();
             const dateRange = row.querySelector(".hotel_check_in_out_date_class")?.innerText.trim();
-    
+
             if (location && dateRange) {
                 const [_, checkOutDate] = dateRange.split(" - "); // Extract checkout date
-    
+
                 // Normalize specific cities to "Jakarta"
                 const normalizedLocation = ["Puncak", "Bandung", "Lombok"].includes(location) ? "Jakarta" : location;
-    
+
                 locations.push(normalizedLocation);
                 checkOutDates.push(checkOutDate);
             }
         });
-    
+
         let firstFlightDate = null;
         let lastFlightDate = null;
-    
+
         for (let i = 0; i < locations.length - 1; i++) {
             if (locations[i] === "Jakarta" && locations[i + 1] !== "Jakarta") {
                 firstFlightDate = checkOutDates[i]; // Leaving Jakarta
@@ -449,15 +443,15 @@ function processInvoiceData(data) {
                 lastFlightDate = checkOutDates[i]; // Returning to Jakarta
             }
         }
-    
+
         if (!firstFlightDate || !lastFlightDate) {
             return "N/A"; // No valid flight period
         }
-    
+
         // Extract parts of the dates
         const [firstDay, firstMonth, firstYear] = firstFlightDate.split(" ");
         const [lastDay, lastMonth, lastYear] = lastFlightDate.split(" ");
-    
+
         // Format the output based on the year and month condition
         if (firstYear === lastYear) {
             if (firstMonth === lastMonth) {
@@ -468,34 +462,34 @@ function processInvoiceData(data) {
             return `${firstDay} ${firstMonth} ${firstYear} - ${lastDay} ${lastMonth} ${lastYear}`; // Different year
         }
     };
-    
-    
+
+
 
     const getFlightDestination = () => {
         const hotelLocationElements = document.querySelectorAll(".hotel_location_value_class");
         let locations = Array.from(hotelLocationElements).map(el => el.innerText.trim());
-    
+
         // Normalize specific cities to "Jakarta"
         locations = locations.map(loc =>
             ["Puncak", "Bandung", "Lombok"].includes(loc) ? "Jakarta" : loc
         );
-    
+
         // Convert city names to airport codes
         const cityToAirport = {
             "Jakarta": "CGK",
             "Bali": "DPS"
         };
-    
+
         let airportCodes = locations.map(loc => cityToAirport[loc] || loc);
-    
+
         // Construct the flight destination string for every transition
         let flightDestinations = [];
         for (let i = 0; i < airportCodes.length - 1; i++) {
-            if (airportCodes[i] !== airportCodes[i + 1]) { 
+            if (airportCodes[i] !== airportCodes[i + 1]) {
                 flightDestinations.push(`${airportCodes[i]}-${airportCodes[i + 1]}`);
             }
         }
-    
+
         return flightDestinations.join("<br>");
     };
 
@@ -537,33 +531,33 @@ function processInvoiceData(data) {
 
     const createTransportationRow = (data) => {
         if (!data) return;
-    
+
         const transportDiv = document.createElement("div");
         transportDiv.id = "transportation_row_div_id";
-    
+
         // Get all hotel locations from elements with the class "hotel_location_value_class"
         const allHotelLocations = Array.from(document.querySelectorAll(".hotel_location_value_class"))
             .map(p => p.innerText.trim()) // Extract text and trim spaces
             .filter(text => text !== ""); // Remove empty values
-    
+
         // Use Set to remove duplicates, then convert back to an array
         const uniqueHotelLocations = [...new Set(allHotelLocations)];
-    
+
         // Join locations with a comma
-        const allHotelLocationsSeparatedByComma = uniqueHotelLocations.length > 0 
-            ? uniqueHotelLocations.join(", ") 
+        const allHotelLocationsSeparatedByComma = uniqueHotelLocations.length > 0
+            ? uniqueHotelLocations.join(", ")
             : '<span class="red_text_color_class">N/A</span>'; // Set "N/A" if empty
-    
+
         // Format and merge startDate and endDate like hotels
         const formattedStartDate = parseDate(data.startDate);
         const formattedEndDate = parseDate(data.endDate);
-    
+
         // Extract day, month, and year
         const [startDay, startMonth, startYear] = formattedStartDate.split(" ");
         const [endDay, endMonth, endYear] = formattedEndDate.split(" ");
-    
+
         let mergedDates;
-    
+
         if (startYear === endYear) {
             if (startMonth === endMonth) {
                 // Same month: "10 - 15 May 2025"
@@ -576,12 +570,12 @@ function processInvoiceData(data) {
             // Different years: "27 Dec 2025 - 3 Jan 2026"
             mergedDates = `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
         }
-    
+
         // Calculate the number of days between the dates
         const startDateObj = new Date(data.startDate);
         const endDateObj = new Date(data.endDate);
         const durationDays = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1; // Convert milliseconds to days
-    
+
         const rowDiv = document.createElement("div");
         rowDiv.className = "invoice_company_row_div_class";
         rowDiv.innerHTML = `
@@ -597,12 +591,12 @@ function processInvoiceData(data) {
             <div style="border-right: 0.5px solid black;">
                 <p>${durationDays} Days</p> 
             </div>`;
-    
+
         transportDiv.appendChild(rowDiv);
         document.getElementById("invoice_company_main_table_div_id").appendChild(transportDiv);
     };
-    
-    
+
+
 
 
     const createTotalPriceRow = (total, travelAgency, guestBy) => {
@@ -1274,7 +1268,7 @@ function setupDuplicateOptions(targetClass, parentClass) {
 /* Download the PDF file */
 async function checkThePdfNameToDownload() {
 
-    if (guestName !== '' && invNumber !== '') {
+    if (document.getElementById("current_used_client_name_span_id").innerText !== '' && document.getElementById("current_used_inv_number_span_id")?.innerText !== '') {
 
         // Play a sound effect
         playSoundEffect('success');
