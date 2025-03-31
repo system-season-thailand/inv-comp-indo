@@ -294,6 +294,7 @@ function processInvoiceData(data) {
                 let roomType = cols[3]?.trim(); // "Room Type" column
                 let startDateRaw = cols[4]?.trim(); // "CHECK IN" column
                 let endDateRaw = cols[5]?.trim(); // "CHECK OUT" column
+                let unitAmount = cols[7]?.trim(); // "Unit Amount" column
 
                 // Handle cases where "Room Type" is missing or misaligned
                 if (!roomType || roomType.match(/^\d{1,2}-[A-Za-z]{3}$/)) {
@@ -319,28 +320,36 @@ function processInvoiceData(data) {
                         hotel.toUpperCase() === "AL ANDALUS RESORT PUNCAK" || hotel.toUpperCase() === "NEOM VILLA")
                         ? "Accommodation Only"
                         : "Including Breakfast",
-                    nights
+                    nights,
+                    unitAmount,
                 });
             }
         }
 
 
-        // Merge hotels with the same hotel and room type
+        // Merge hotels with the same hotel name and consolidate room types
         const mergedHotels = [];
         const hotelMap = new Map();
 
         hotels.forEach((hotel) => {
-            const key = `${hotel.hotel}-${hotel.roomType}`;
+            const key = hotel.hotel; // Use only hotel name for key
             if (hotelMap.has(key)) {
                 const existing = hotelMap.get(key);
-                existing.nights += hotel.nights;
-                existing.endDate = hotel.endDate; // Update end date
+
+                // Append room types with "Extra Bed" or "Decor" to the main room type
+                if (/extra bed|decor/i.test(hotel.roomType)) {
+                    existing.roomType += ` + ${hotel.roomType}`;
+                } else {
+                    existing.nights += hotel.nights;
+                    existing.endDate = hotel.endDate; // Update end date
+                }
             } else {
                 hotelMap.set(key, { ...hotel });
             }
         });
 
         hotelMap.forEach((value) => mergedHotels.push(value));
+
 
         return { hotels: mergedHotels, flights, transport, total };
     };
@@ -384,6 +393,13 @@ function processInvoiceData(data) {
         data.forEach(item => {
             const mergedDate = mergeDates(item.startDate, item.endDate);
 
+            // Check if unitAmount is more than 1 and append to roomType
+            let roomTypeDisplay = item.roomType;
+            if (parseInt(item.unitAmount, 10) > 1) {
+                roomTypeDisplay = `(${item.unitAmount} Units) ${roomTypeDisplay}`;
+            }
+
+
             const rowDiv = document.createElement("div");
             rowDiv.className = "invoice_company_row_div_class";
             rowDiv.innerHTML = `
@@ -392,7 +408,7 @@ function processInvoiceData(data) {
                 </div>
                 <div>
                     <p class="duplicate_this_element_class">${item.hotel.toUpperCase()}</p>
-                    <p class="duplicate_this_element_class">${item.roomType}</p>
+                    <p class="duplicate_this_element_class">${roomTypeDisplay}</p>
                     <p class="breakfast_text_options_class">${item.details}</p>
                 </div>
                 <div>
@@ -407,6 +423,7 @@ function processInvoiceData(data) {
 
         document.getElementById("invoice_company_main_table_div_id").appendChild(allHotelsDiv);
     };
+
 
 
 
