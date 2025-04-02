@@ -270,7 +270,8 @@ button {
 .invoice_company_bottom_payment_info_div_class * {
     font-size: 1.4rem;
     direction: ltr;
-    padding-left: 5rem;
+    padding-left: 10rem;
+    padding-right: 6rem;
 }
 
 
