@@ -461,15 +461,18 @@ function processInvoiceData(data) {
             }
         }
 
-        if (!firstFlightDate || !lastFlightDate) {
+        if (!firstFlightDate) {
             return "N/A"; // No valid flight period
         }
 
-        // Extract parts of the dates
         const [firstDay, firstMonth, firstYear] = firstFlightDate.split(" ");
+
+        if (!lastFlightDate) {
+            return `${firstDay} ${firstMonth} ${firstYear}`; // Only firstFlightDate exists
+        }
+
         const [lastDay, lastMonth, lastYear] = lastFlightDate.split(" ");
 
-        // Format the output based on the year and month condition
         if (firstYear === lastYear) {
             if (firstMonth === lastMonth) {
                 return `${firstDay} - ${lastDay} ${firstMonth} ${firstYear}`; // Same month
@@ -479,6 +482,7 @@ function processInvoiceData(data) {
             return `${firstDay} ${firstMonth} ${firstYear} - ${lastDay} ${lastMonth} ${lastYear}`; // Different year
         }
     };
+
 
 
 
