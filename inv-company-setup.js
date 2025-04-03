@@ -330,26 +330,43 @@ function processInvoiceData(data) {
         // Merge hotels with the same hotel name and consolidate room types
         const mergedHotels = [];
         let prevHotel = null;
-        
-        hotels.forEach((hotel, index) => {
+    
+        hotels.forEach((hotel) => {
             if (
                 prevHotel &&
                 prevHotel.hotel === hotel.hotel &&
                 prevHotel.roomType === hotel.roomType
             ) {
-                // Merge consecutive hotel entries
+                // Merge consecutive hotel entries with same name & room type
                 prevHotel.nights += hotel.nights;
                 prevHotel.endDate = hotel.endDate; // Update the end date
+            } else if (
+                prevHotel &&
+                prevHotel.hotel === hotel.hotel &&
+                /extra bed|decor/i.test(hotel.roomType)
+            ) {
+                // Append "Extra Bed" or "Decor" to the main room type
+                prevHotel.roomType += ` + ${hotel.roomType}`;
+            } else if (
+                prevHotel &&
+                prevHotel.hotel === hotel.hotel &&
+                prevHotel.endDate === hotel.endDate &&
+                prevHotel.nights === hotel.nights &&
+                prevHotel.checkIn === hotel.checkIn &&
+                prevHotel.checkOut === hotel.checkOut
+            ) {
+                // Merge hotels with the same name and dates but different room types
+                prevHotel.roomType += ` + ${hotel.roomType}`;
             } else {
                 // Push previous hotel entry before replacing
                 if (prevHotel) mergedHotels.push(prevHotel);
                 prevHotel = { ...hotel };
             }
         });
-        
+    
         // Push the last hotel entry
         if (prevHotel) mergedHotels.push(prevHotel);
-        
+    
         return { hotels: mergedHotels, flights, transport, total };
         
     };
