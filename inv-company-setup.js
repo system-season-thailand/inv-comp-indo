@@ -221,6 +221,7 @@ function processInvoiceData(data) {
         const hotels = [];
         let flights = null;
         let transport = null;
+        let visa = null;
         let total = null;
 
         for (const line of lines) {
@@ -254,7 +255,7 @@ function processInvoiceData(data) {
 
 
             // Check if any column contains "TICKET"
-            if (cols.some(col => /TICKET/i.test(col))) {
+            if (cols.some(col => /TICK/i.test(col))) {
 
                 const startDate = cols[3]?.trim();
                 const endDate = cols[4]?.trim();
@@ -273,7 +274,7 @@ function processInvoiceData(data) {
 
 
             // Handle transportation
-            else if (/TRANSPORTATION/i.test(cols[1] || "")) {
+            else if (/TRANSPORTA/i.test(cols[1] || "")) {
                 // Ensure we are using the correct columns for "CHECK IN" and "CHECK OUT"
                 const startDate = cols[4]?.trim() || "N/A"; // "CHECK IN" column
                 const endDate = cols[5]?.trim() || "N/A";   // "CHECK OUT" column
@@ -284,6 +285,26 @@ function processInvoiceData(data) {
                     endDate: parseDate(endDate),
                 };
             }
+
+
+
+
+            /* Handle visa row */
+            else if (/VISA/i.test(cols[1] || "")) {
+                // Ensure `cols` has at least 8 elements (index 7 exists)
+                let fixedCols = [...cols]; // Clone the original array
+                while (fixedCols.length < 8) fixedCols.push(""); // Fill missing columns with empty strings
+            
+                visa = {
+                    visaDyasNumber: fixedCols[1]?.trim() || "VISA", // "Room Type" column
+                    personAmount: fixedCols[7]?.trim() || "5", // Ensure column 7 is always accessible
+                };
+            
+                console.log("Column 7 Content:", fixedCols[7]); // Should correctly show the "2"
+            }
+            
+
+
 
 
             // Handle hotel rows
@@ -330,7 +351,7 @@ function processInvoiceData(data) {
         // Merge hotels with the same hotel name and consolidate room types
         const mergedHotels = [];
         let prevHotel = null;
-    
+
         hotels.forEach((hotel) => {
             if (
                 prevHotel &&
@@ -363,31 +384,37 @@ function processInvoiceData(data) {
                 prevHotel = { ...hotel };
             }
         });
-    
+
         // Push the last hotel entry
         if (prevHotel) mergedHotels.push(prevHotel);
-    
-        return { hotels: mergedHotels, flights, transport, total };
-        
+
+        return { hotels: mergedHotels, flights, transport, visa, total };
+
     };
 
 
 
 
     const lines = data.split("\n").map(line => line.trim()).filter(line => line);
-    const { hotels, flights, transport, total } = extractData(lines);
+    const { hotels, flights, transport, visa, total } = extractData(lines);
 
     document.getElementById("invoice_company_main_table_div_id").innerHTML = "";
 
     const mergeDates = (startDate, endDate) => {
         if (!startDate || !endDate) return "N/A";
 
+        const defaultYear = "2025"; // Set default year if missing
+
         // Parse dates into parts
         const startParts = startDate.split(" ");
         const endParts = endDate.split(" ");
 
-        const [startDay, startMonth, startYear] = startParts;
-        const [endDay, endMonth, endYear] = endParts;
+        let [startDay, startMonth, startYear] = startParts;
+        let [endDay, endMonth, endYear] = endParts;
+
+        // If year is missing, set default
+        if (!startYear) startYear = defaultYear;
+        if (!endYear) endYear = defaultYear;
 
         // Case 1: Same year and same month → "6-9 Jul 2025"
         if (startYear === endYear && startMonth === endMonth) {
@@ -402,6 +429,7 @@ function processInvoiceData(data) {
         // Case 3: Different years → "27 Dec 2025 - 3 Jan 2026"
         return `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
     };
+
 
     const createHotelRows = (data) => {
         const allHotelsDiv = document.createElement("div");
@@ -586,9 +614,20 @@ function processInvoiceData(data) {
             ? uniqueHotelLocations.join(", ")
             : '<span class="red_text_color_class">N/A</span>'; // Set "N/A" if empty
 
+        const defaultYear = "2025"; // Default year if missing
+
+        // Function to ensure the date includes a year
+        const parseDateWithDefaultYear = (dateString) => {
+            if (!dateString) return `N/A`;
+            const parts = dateString.split(" ");
+            let [day, month, year] = parts;
+            if (!year) year = defaultYear; // Assign default year if missing
+            return `${day} ${month} ${year}`;
+        };
+
         // Format and merge startDate and endDate like hotels
-        const formattedStartDate = parseDate(data.startDate);
-        const formattedEndDate = parseDate(data.endDate);
+        const formattedStartDate = parseDateWithDefaultYear(data.startDate);
+        const formattedEndDate = parseDateWithDefaultYear(data.endDate);
 
         // Extract day, month, and year
         const [startDay, startMonth, startYear] = formattedStartDate.split(" ");
@@ -610,8 +649,8 @@ function processInvoiceData(data) {
         }
 
         // Calculate the number of days between the dates
-        const startDateObj = new Date(data.startDate);
-        const endDateObj = new Date(data.endDate);
+        const startDateObj = new Date(`${startDay} ${startMonth} ${startYear}`);
+        const endDateObj = new Date(`${endDay} ${endMonth} ${endYear}`);
         const durationDays = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1; // Convert milliseconds to days
 
         const rowDiv = document.createElement("div");
@@ -633,6 +672,41 @@ function processInvoiceData(data) {
         transportDiv.appendChild(rowDiv);
         document.getElementById("invoice_company_main_table_div_id").appendChild(transportDiv);
     };
+
+
+
+
+
+
+    const createVisaRow = (data) => {
+        if (!data) return;
+
+        const visaDiv = document.createElement("div");
+        visaDiv.id = "visa_row_div_id";
+
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "invoice_company_row_div_class";
+
+        // Add all flight dates as <p> elements
+        rowDiv.innerHTML = `
+            <div>
+                <p contenteditable="true">${new Date().getFullYear()}</p>
+            </div>
+            <div>
+                <p class="duplicate_this_element_class" contenteditable="true">${data.visaDyasNumber}</p>
+            </div>
+            <div>
+                <p contenteditable="true">INDONESIA</p>
+            </div>
+            <div style="border-right: 0.5px solid black;">
+                <p class="red_text_color_class flight_amount_text_options_class" contenteditable="true">${data.personAmount} Person</p>  
+            </div>`;
+
+        visaDiv.appendChild(rowDiv);
+        document.getElementById("invoice_company_main_table_div_id").appendChild(visaDiv);
+    };
+
+
 
 
 
@@ -708,6 +782,7 @@ function processInvoiceData(data) {
     createHotelRows(hotels);
     if (flights) createFlightRow(flights);
     if (transport) createTransportationRow(transport);
+    if (visa) createVisaRow(visa);
     if (total) createTotalPriceRow(total, travelAgency, guestBy);
 
 
