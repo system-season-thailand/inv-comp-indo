@@ -192,21 +192,13 @@ const loadAllData = async () => {
 
                 batchHTMLElements.push(h3);
             }
-            
         });
 
         // Append batch elements inside the container (backup div)
         batchHTMLElements.forEach(el => container.appendChild(el));
 
         remainingRows -= numRows; // Move fetch range up
-
-
-
-        
     }
-
-
-    
 
 
     // Log all data after fetching all batches
