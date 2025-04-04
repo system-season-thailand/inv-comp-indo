@@ -156,7 +156,7 @@ button {
 
 #proforma_invoice_and_logo_div_id {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
 }
 
 #proforma_invoice_and_logo_div_id img {
@@ -165,11 +165,15 @@ button {
 
 #proforma_invoice_date_and_number_div_id {
     padding: 0 5px;
+    padding-right: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 #proforma_invoice_date_and_number_div_id p {
     direction: ltr;
-    font-size: 2rem;
+    font-size: 1.5rem;
     text-align: left;
 }
 
@@ -177,15 +181,17 @@ button {
     display: flex;
     flex-direction: column;
     padding: 0 5px;
+    padding-left: 15px;
 }
 
 #proforma_invoice_logo_and_location_div_id img {
     align-self: center;
+    width: 15rem;
 }
 
 #proforma_invoice_logo_and_location_div_id p {
-    font-size: 2rem;
-    text-align: left;
+    font-size: 1.2rem;
+    text-align: center;
 }
 
 #invoice_company_guest_name_div_id p {
@@ -210,6 +216,8 @@ button {
 #main_inv_company_row_id {
     background: rgb(6, 53, 62);
     color: white;
+    border-top: 0.5px solid black;
+    border-right: 0.5px solid black;
 }
 
 

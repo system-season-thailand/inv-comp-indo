@@ -232,7 +232,7 @@ function processInvoiceData(data) {
             if (/^NO\s+HOTEL,\s+VILLA\s+\/\s+OTHER/i.test(trimmedLine)) continue;
 
             // Skip rows with insufficient data unless specifically handled below
-            if (cols.length < 4 && !/GUEST TRANSFER|TICKET|TRANSPORTATION/i.test(trimmedLine)) continue;
+            if (cols.length < 4 && !/GUEST TRANSFER|TOTAL|TICKET|TRANSPORTATION/i.test(trimmedLine)) continue;
 
 
             // Split the input text into lines and get the last non-empty row
@@ -241,7 +241,7 @@ function processInvoiceData(data) {
 
 
             // Regex to find SAR, USD, or IDR followed by a number
-            const match = lastLine.match(/(SAR|USD|IDR)\s*([\d,]+)/i);
+            const match = lastLine.match(/(SAR|USD|IDR|RP)\s*([\d,]+)/i);
 
 
 
@@ -249,6 +249,7 @@ function processInvoiceData(data) {
 
             if (match) {
                 total = match[2].replace(/,/g, '').trim(); // Remove commas and trim
+                console.log(total);
             }
 
 
@@ -259,7 +260,7 @@ function processInvoiceData(data) {
 
                 const startDate = cols[3]?.trim();
                 const endDate = cols[4]?.trim();
-                const quantity = cols[6]?.trim();
+                const quantity = cols[7]?.trim();
 
                 flights = {
                     startDate: parseDate(startDate) || "N/A",
@@ -291,18 +292,13 @@ function processInvoiceData(data) {
 
             /* Handle visa row */
             else if (/VISA/i.test(cols[1] || "")) {
-                // Ensure `cols` has at least 8 elements (index 7 exists)
-                let fixedCols = [...cols]; // Clone the original array
-                while (fixedCols.length < 8) fixedCols.push(""); // Fill missing columns with empty strings
-            
+                // Ensure we are using the correct columns for "Room Type" and "Units"
                 visa = {
-                    visaDyasNumber: fixedCols[1]?.trim() || "VISA", // "Room Type" column
-                    personAmount: fixedCols[7]?.trim() || "5", // Ensure column 7 is always accessible
+                    visaDyasNumber: cols[1]?.trim() || "VISA", // "Room Type" column
+                    personAmount: cols[5]?.trim() || "1", // "Units" column
                 };
-            
-                console.log("Column 7 Content:", fixedCols[7]); // Should correctly show the "2"
             }
-            
+
 
 
 
@@ -721,11 +717,14 @@ function processInvoiceData(data) {
 
         // Determine the currency
         let currency = "SAR"; // Default currency
-        if (agencyUpper === "AL EZZ") {
+        if (agencyUpper.includes("AL EZZ")) {
             currency = "USD";
-        } else if (guestUpper === "RAYAN" || guestUpper === "TURKI") {
+        } else if (guestUpper.includes("RAYAN") || guestUpper.includes("TURKI") || guestUpper.includes("TARIQ") || guestUpper.includes("SECRET")) {
+            currency = "IDR";
+        } else if (agencyUpper.includes("RAYAN") || agencyUpper.includes("TURKI") || agencyUpper.includes("TARIQ") || agencyUpper.includes("SECRET")) {
             currency = "IDR";
         }
+
 
         // Format total number with commas
         const formattedTotal = Number(total).toLocaleString();
@@ -1378,119 +1377,6 @@ function setupDuplicateOptions(targetClass, parentClass) {
 
 
 
-/* Download the PDF file */
-async function checkThePdfNameToDownload() {
-
-    if (document.getElementById("current_used_client_name_span_id").innerText !== '' && document.getElementById("current_used_inv_number_span_id")?.innerText !== '') {
-
-        // Play a sound effect
-        playSoundEffect('success');
-
-        // Disable the button while processing
-        const button = document.getElementById('check_pdf_name_button');
-        button.style.pointerEvents = 'none';
-        button.style.backgroundColor = 'gray';
-        button.innerText = 'Yaay!';
-
-        // Target all elements with the red text class
-        const redTextElements = document.querySelectorAll('.red_text_color_class');
-
-        // Store the original color and set the text color to black
-        redTextElements.forEach(element => {
-            element.dataset.originalColor = element.style.color; // Save original color
-            element.style.color = 'black'; // Change to black for PDF
-        });
-
-        // Capture the div by ID
-        const element = document.getElementById("whole_invoice_company_section_id");
-
-        // Convert the div content to an image
-        const canvas = await html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-        });
-
-        // Convert canvas to a compressed image
-        const imgData = canvas.toDataURL("image/jpeg", 0.7);
-
-        // Create a jsPDF instance
-        const pdf = new jspdf.jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4"
-        });
-
-        // Get PDF dimensions
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const padding = 5;
-        const availableWidth = pdfWidth - padding * 1;
-        const availableHeight = pdfHeight - padding * 1;
-
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-
-        let scaledWidth, scaledHeight;
-
-        if (imgWidth / imgHeight > availableWidth / availableHeight) {
-            scaledWidth = availableWidth;
-            scaledHeight = (imgHeight * availableWidth) / imgWidth;
-        } else {
-            scaledHeight = availableHeight;
-            scaledWidth = (imgWidth * availableHeight) / imgHeight;
-        }
-
-        // Calculate centered position
-        const x = (pdfWidth - scaledWidth) / 2;
-        const y = (pdfHeight - scaledHeight) / 2;
-
-        // Add the image to the PDF
-        pdf.addImage(imgData, "JPEG", x, y, scaledWidth, scaledHeight);
-
-        // Trigger PDF download
-        pdf.save(`${document.getElementById('pdf_file_name_input_id').value}.pdf`);
-
-        // Restore original red color after download
-        redTextElements.forEach(element => {
-            element.style.color = element.dataset.originalColor || 'red';
-        });
-
-
-
-
-
-
-        /* Run a function to store the data in the google sheet */
-        sendDataToGoogleSheet()
-
-    } else {
-        // Play a sound effect
-        playSoundEffect('error');
-
-        const button = document.getElementById('check_pdf_name_button');
-
-        // Change background to red gradient
-        button.style.background = 'rgb(125, 46, 46)';
-
-        setTimeout(() => {
-            // Change background back to green gradient after 1 second
-            button.style.background = '#4CAF50';
-        }, 500);
-
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1639,3 +1525,128 @@ searchBarInputElements.forEach(input => {
         });
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Download the PDF file */
+async function checkThePdfNameToDownload() {
+
+    if (document.getElementById("current_used_client_name_span_id").innerText !== '' && document.getElementById("current_used_inv_number_span_id")?.innerText !== '') {
+
+        // Play a sound effect
+        playSoundEffect('success');
+
+        // Disable the button while processing
+        const button = document.getElementById('check_pdf_name_button');
+        button.style.pointerEvents = 'none';
+        button.style.backgroundColor = 'gray';
+        button.innerText = 'Great!';
+
+        // Target all elements with the red text class
+        const redTextElements = document.querySelectorAll('.red_text_color_class');
+
+        // Store the original color and set the text color to black
+        redTextElements.forEach(element => {
+            element.dataset.originalColor = element.style.color; // Save original color
+            element.style.color = 'black'; // Change to black for PDF
+        });
+
+
+
+
+
+
+
+
+        // Capture the div by ID
+        const element = document.getElementById("whole_invoice_company_section_id");
+
+        // Convert the div content to an image
+        html2canvas(element, {
+            scale: 3,
+            useCORS: true,
+            logging: false,
+        }).then(canvas => {
+            // Convert to compressed image
+            const imgData = canvas.toDataURL("image/jpeg", 0.7);
+
+            // Create jsPDF instance
+            const pdf = new jspdf.jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: "a4",
+            });
+
+            // Get PDF dimensions
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+
+            // Get image dimensions
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+
+            // Scale width to fit within PDF width
+            const scaledWidth = pdfWidth;
+            const scaledHeight = (imgHeight * scaledWidth) / imgWidth;
+
+            // Start position at the top (y = 0)
+            let y = 0;
+
+            // Add image to PDF (starting from the top)
+            pdf.addImage(imgData, "JPEG", 0, y, scaledWidth, scaledHeight);
+
+            // Trigger PDF download
+            pdf.save(`${document.getElementById('pdf_file_name_input_id').value}.pdf`);
+        });
+
+
+
+
+
+
+
+
+
+
+
+        // Restore original red color after download
+        redTextElements.forEach(element => {
+            element.style.color = element.dataset.originalColor || 'red';
+        });
+
+
+
+
+
+
+        /* Run a function to store the data in the google sheet */
+        /* sendDataToGoogleSheet() */
+
+    } else {
+        // Play a sound effect
+        playSoundEffect('error');
+
+        const button = document.getElementById('check_pdf_name_button');
+
+        // Change background to red gradient
+        button.style.background = 'rgb(125, 46, 46)';
+
+        setTimeout(() => {
+            // Change background back to green gradient after 1 second
+            button.style.background = '#4CAF50';
+        }, 500);
+
+    }
+}
