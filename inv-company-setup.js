@@ -576,7 +576,7 @@ function processInvoiceData(data) {
                 <p contenteditable="true">${flightDates}</p>
             </div>
             <div>
-                <p class="duplicate_this_element_class" contenteditable="true">Domestic Flight Tickets</p>
+                <p class="duplicate_this_element_class" contenteditable="true" style="padding: 20px 0">Domestic Flight Tickets</p>
             </div>
             <div>
                 <p class="flight_destination_text_options_class" contenteditable="true">${getFlightDestination()}</p>
@@ -659,7 +659,7 @@ function processInvoiceData(data) {
                 <p>${mergedDates}</p>
             </div>
             <div>
-                <p class="duplicate_this_element_class">TRANSPORTATION + SIM CARD</p>
+                <p class="duplicate_this_element_class" style="padding: 20px 0">TRANSPORTATION + SIM CARD</p>
             </div>
             <div>
                 <p class="transportation_cities_text_options_class">${allHotelLocationsSeparatedByComma}</p>
