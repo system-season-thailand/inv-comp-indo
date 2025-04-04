@@ -194,18 +194,31 @@ button {
     text-align: center;
 }
 
-#invoice_company_guest_name_div_id p {
+#invoice_company_guest_info_div_id p {
     direction: ltr;
     width: 100%;
     font-size: 1.7rem;
-    text-align: center;
+    text-align: left;
 }
+
+#invoice_company_guest_name_div_id {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#invoice_company_guest_name_div_id p {
+    width: fit-content;
+    padding: 0 150px;
+}
+
 
 #the_full_payment_is_required_2_weeks_prior_arrival_p_id {
     font-weight: bolder;
     width: 100%;
     text-align: center;
-    font-size: 1.7rem;
+    font-size: 1.5rem;
 }
 
 
@@ -276,7 +289,7 @@ button {
 
 
 .invoice_company_bottom_payment_info_div_class * {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     direction: ltr;
     padding-left: 10rem;
     padding-right: 6rem;

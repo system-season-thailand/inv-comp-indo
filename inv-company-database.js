@@ -117,14 +117,12 @@ const fetchBatch = async (startRow, numRows) => {
 
 const loadAllData = async () => {
 
-    /* Delete all imported google sheet data */
+    // Delete all previously imported Google Sheet data
     const container = document.getElementById("all_google_sheet_stored_data_names_for_importing_data_div");
     container.innerHTML = '';
 
-
-    /* Get the whole inv company div */
+    // Get the whole invoice company section
     const wholeInvoiceSection = document.getElementById("whole_invoice_company_section_id");
-
 
     // Fetch the total number of rows
     let initialFetch = await fetchBatch(1, 1);
@@ -140,18 +138,14 @@ const loadAllData = async () => {
 
     let batchSize = 200;
     let allDataSet = new Set(); // Store unique names
-    let remainingRows = totalRows; // Start from the last row
+    let remainingRows = totalRows;
 
     for (let i = 0; i < 5; i++) {
-        if (remainingRows <= 1) break; // Stop if no more rows to fetch
+        if (remainingRows <= 1) break;
 
         let numRows = Math.min(batchSize, remainingRows - 1);
         let startRow = remainingRows;
         let endRow = Math.max(1, startRow - numRows + 1);
-
-
-        /* console.log(`🟡 Fetching Batch ${i + 1}: startRow = ${startRow}, numRows = ${numRows}, endRow = ${endRow}`); */
-
 
         let fetchResult = await fetchBatch(startRow, numRows);
         let data = fetchResult.data;
@@ -161,7 +155,6 @@ const loadAllData = async () => {
             break;
         }
 
-        // Ensure each object is stored correctly in allFetchedData
         data.forEach(row => {
             if (row.name && row.content !== undefined) {
                 allFetchedData.push({
@@ -174,10 +167,6 @@ const loadAllData = async () => {
         let batchHTMLElements = [];
 
         data.forEach(row => {
-            // Log fetched data
-            /* console.log(`📌 Name: "${row.name}", 📝 Content: "${row.content}"`); */
-
-
             if (row.name !== "Name" && !allDataSet.has(row.name)) {
                 allDataSet.add(row.name);
 
@@ -187,23 +176,27 @@ const loadAllData = async () => {
                     importContentForSelectedName(this);
                 };
 
-                // Append inside "whole_invoice_company_section_id"
                 wholeInvoiceSection.appendChild(h3);
-
                 batchHTMLElements.push(h3);
             }
         });
 
-        // Append batch elements inside the container (backup div)
         batchHTMLElements.forEach(el => container.appendChild(el));
 
-        remainingRows -= numRows; // Move fetch range up
+        remainingRows -= numRows;
     }
 
-
-    // Log all data after fetching all batches
-    /* console.log("✅ All fetched data stored in global variable:", allFetchedData); */
+    // 🔍 Trigger filtering based on existing search input value(s)
+    let searchBarInputElements = document.querySelectorAll('.search_bar_input_class');
+    searchBarInputElements.forEach(input => {
+        let filter = input.value.trim().toLowerCase();
+        if (filter) {
+            let event = new Event('input', { bubbles: true });
+            input.dispatchEvent(event);
+        }
+    });
 };
+
 
 
 

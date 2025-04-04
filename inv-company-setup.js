@@ -226,7 +226,7 @@ function processInvoiceData(data) {
 
         for (const line of lines) {
             const trimmedLine = line.trim();
-            const cols = trimmedLine.split(/\t+/).map(col => col.trim());
+            const cols = trimmedLine.split('\t').map(col => col.trim());
 
             // Skip header row
             if (/^NO\s+HOTEL,\s+VILLA\s+\/\s+OTHER/i.test(trimmedLine)) continue;
@@ -295,8 +295,11 @@ function processInvoiceData(data) {
                 // Ensure we are using the correct columns for "Room Type" and "Units"
                 visa = {
                     visaDyasNumber: cols[1]?.trim() || "VISA", // "Room Type" column
-                    personAmount: cols[5]?.trim() || "1", // "Units" column
+                    personAmount: cols[7]?.trim() || "1", // "Units" column
                 };
+
+
+                console.log(cols[7]?.trim());
             }
 
 
