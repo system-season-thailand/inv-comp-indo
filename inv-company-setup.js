@@ -714,13 +714,13 @@ function processInvoiceData(data) {
 
         // Convert values to uppercase for case-insensitive comparison
         const agencyUpper = (travelAgency || "").toUpperCase();
-        const guestUpper = (guestBy || "").toUpperCase();
+        const guestByUpper = (guestBy || "").toUpperCase();
 
         // Determine the currency
         let currency = "SAR"; // Default currency
         if (agencyUpper.includes("AL EZZ")) {
             currency = "USD";
-        } else if (guestUpper.includes("RAYAN") || guestUpper.includes("TURKI") || guestUpper.includes("TARIQ") || guestUpper.includes("SECRET")) {
+        } else if (guestByUpper.includes("RAYAN") || guestByUpper.includes("TURKI") || guestByUpper.includes("TARIQ") || guestByUpper.includes("SECRET")) {
             currency = "IDR";
         } else if (agencyUpper.includes("RAYAN") || agencyUpper.includes("TURKI") || agencyUpper.includes("TARIQ") || agencyUpper.includes("SECRET")) {
             currency = "IDR";
