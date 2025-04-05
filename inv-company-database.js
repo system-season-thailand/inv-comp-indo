@@ -1,6 +1,3 @@
-let existingDataStatus = 'newData'; // Variable to identify if the data will be saved as a new data in the google sheet or as an existing data
-
-
 
 
 // Your Google Apps Script Web App URL
@@ -39,8 +36,6 @@ function sendDataToGoogleSheet() {
         .then(() => {
             loadAllData();
 
-            // Change the value of 'existingDataStatus' for editing old data mode
-            existingDataStatus = 'existingData';
 
             /* Re-enable the p element for saving the current package data in the same saved inv comp code */
             document.getElementById('check_pdf_name_button').style.pointerEvents = 'auto';

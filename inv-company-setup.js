@@ -1550,6 +1550,11 @@ async function checkThePdfNameToDownload() {
         // Play a sound effect
         playSoundEffect('success');
 
+
+        /* Run a function to store the data in the google sheet */
+        sendDataToGoogleSheet()
+
+
         // Disable the button while processing
         const button = document.getElementById('check_pdf_name_button');
         button.style.pointerEvents = 'none';
@@ -1628,12 +1633,6 @@ async function checkThePdfNameToDownload() {
         });
 
 
-
-
-
-
-        /* Run a function to store the data in the google sheet */
-        /* sendDataToGoogleSheet() */
 
     } else {
         // Play a sound effect

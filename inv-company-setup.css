@@ -194,7 +194,7 @@ button {
     text-align: center;
 }
 
-#invoice_company_guest_info_div_id p {
+#invoice_company_guest_name_p_id {
     direction: ltr;
     width: 100%;
     font-size: 1.7rem;
