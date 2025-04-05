@@ -174,7 +174,11 @@ function processInvoiceData(data) {
 
 
     document.querySelector("#proforma_invoice_date_and_number_div_id p:nth-child(3)").innerHTML = `Inv No: F<span id="current_used_inv_number_span_id">${invoiceNo}</span>`;
-    document.querySelector("#invoice_company_guest_name_p_id").innerHTML = `UP TO: <span id="current_used_company_name_span_id" class="bold_text upper_case_text">${travelAgency}</span></span> (<span id="current_used_client_name_span_id">${clientName}</span>)`;
+
+
+    // Check if travelAgency includes "SYABAB"
+    const finalTravelAgency = travelAgency.toUpperCase().includes("SYABAB") ? "MR. RAYAN" : travelAgency;
+    document.querySelector("#invoice_company_guest_name_p_id").innerHTML = `UP TO: <span id="current_used_company_name_span_id" class="bold_text upper_case_text">${finalTravelAgency}</span> (<span id="current_used_client_name_span_id">${clientName}</span>)`;
 
 
 
