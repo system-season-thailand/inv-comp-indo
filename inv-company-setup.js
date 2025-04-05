@@ -609,7 +609,7 @@ function processInvoiceData(data) {
         // Join locations with a comma
         const allHotelLocationsSeparatedByComma = uniqueHotelLocations.length > 0
             ? uniqueHotelLocations.join(", ")
-            : '<span class="red_text_color_class">N/A</span>'; // Set "N/A" if empty
+            : '<span class="transportation_cities_text_options_class red_text_color_class">N/A</span>'; // Set "N/A" if empty
 
         const defaultYear = "2025"; // Default year if missing
 
@@ -720,9 +720,9 @@ function processInvoiceData(data) {
         let currency = "SAR"; // Default currency
         if (agencyUpper.includes("AL EZZ")) {
             currency = "USD";
-        } else if (guestByUpper.includes("RAYAN") || guestByUpper.includes("TURKI") || guestByUpper.includes("TARIQ") || guestByUpper.includes("SECRET")) {
+        } else if (guestByUpper.includes("RAYAN") || guestByUpper.includes("TURKI") || guestByUpper.includes("TARIQ") || guestByUpper.includes("SECRET") || guestByUpper.includes("TURKY")) {
             currency = "IDR";
-        } else if (agencyUpper.includes("RAYAN") || agencyUpper.includes("TURKI") || agencyUpper.includes("TARIQ") || agencyUpper.includes("SECRET")) {
+        } else if (agencyUpper.includes("RAYAN") || agencyUpper.includes("TURKI") || agencyUpper.includes("TARIQ") || agencyUpper.includes("SECRET") || agencyUpper.includes("TURKY")) {
             currency = "IDR";
         }
 
@@ -1056,19 +1056,31 @@ function setupTransportationCitiesOptions() {
 
         // Add click event to set the innerText of the clicked p element
         option.addEventListener("click", () => {
-            if (currentElement.innerText === 'Location') {
-
-                currentElement.innerText = '';
-                currentElement.innerText = FlightDestination;
-                currentElement.style.color = 'black';
-
-            } else {
-
-                currentElement.innerText = `${currentElement.innerText}, ${FlightDestination}`;
+            if (currentElement) {
+                let currentText = currentElement.innerText.trim();
+        
+                // Normalize city names for comparison (case-insensitive)
+                const selectedCity = FlightDestination.trim();
+                const currentCities = currentText.split(",").map(city => city.trim().toLowerCase());
+        
+                // If the city already exists, do nothing
+                if (currentCities.includes(selectedCity.toLowerCase())) {
+                    return;
+                }
+        
+                // If current text is 'Location' or 'N/A', replace with selected city
+                if (currentText === 'Location' || currentText === 'N/A') {
+                    currentElement.innerText = selectedCity;
+                } else {
+                    currentElement.innerText = `${currentText}, ${selectedCity}`;
+                }
+        
+                // Set text color to black
                 currentElement.style.color = 'black';
             }
-
         });
+        
+        
 
         optionsMenu.appendChild(option);
     });

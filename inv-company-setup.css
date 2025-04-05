@@ -177,11 +177,15 @@ button {
     text-align: left;
 }
 
+#proforma_invoice_date_and_number_div_id p:first-of-type {
+    font-size: 2rem;
+}
+
 #proforma_invoice_logo_and_location_div_id {
     display: flex;
     flex-direction: column;
     padding: 0 5px;
-    padding-left: 50px;
+    padding-left: 40px;
     padding-top: 30px;
 }
 
@@ -192,7 +196,8 @@ button {
 
 #proforma_invoice_logo_and_location_div_id p {
     font-size: 1.2rem;
-    text-align: center;
+    text-align: left;
+    padding-left: 30px;
 }
 
 #invoice_company_guest_name_p_id {
