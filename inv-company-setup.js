@@ -741,10 +741,8 @@ function processInvoiceData(data) {
         if (mainDiv) {
             if (currency === "IDR") {
                 mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
-                mainDiv.style.color = "black";
             } else {
-                mainDiv.style.backgroundColor = "rgb(6, 53, 62)";
-                mainDiv.style.color = "white";
+                mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
             }
         }
 

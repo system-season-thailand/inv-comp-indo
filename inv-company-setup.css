@@ -165,7 +165,7 @@ button {
 
 #proforma_invoice_date_and_number_div_id {
     padding: 0 5px;
-    padding-right: 30px;
+    padding-right: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -181,7 +181,8 @@ button {
     display: flex;
     flex-direction: column;
     padding: 0 5px;
-    padding-left: 15px;
+    padding-left: 50px;
+    padding-top: 30px;
 }
 
 #proforma_invoice_logo_and_location_div_id img {
@@ -227,8 +228,8 @@ button {
 
 /* Inserted Hotels data position */
 #main_inv_company_row_id {
-    background: rgb(6, 53, 62);
-    color: white;
+    background: rgb(133, 161, 169);
+    color: black;
     border-top: 0.5px solid black;
     border-right: 0.5px solid black;
 }

@@ -1,7 +1,7 @@
 
 
 // Your Google Apps Script Web App URL
-var googleSheetWebAppUrl = "https://script.google.com/macros/s/AKfycbw6e3PX3_29Ydfa07dsCvybj_4e7POA7AgK69LMcxoYwBPZbn6HtqAsCNY9dGXHEneE1Q/exec";
+var googleSheetWebAppUrl = "https://script.google.com/macros/s/AKfycbyQOk1quKqE0uRPyQ0mSpX2YGdR75EqCeUcP40uMSwcQfPQqXh40UOEP5tvpeWvMLg_3w/exec";
 
 function sendDataToGoogleSheet() {
     // Get values from the spans
@@ -96,7 +96,7 @@ let allFetchedData = [];
 
 const fetchBatch = async (startRow, numRows) => {
     try {
-        let response = await fetch(`https://script.google.com/macros/s/AKfycbyOsJj-siVFwGYUjSCa6EqiEnX8c37VtxO5s8w_WOHC6OEAH0w4PQ0h0bxw-t4LasDhqQ/exec?startRow=${startRow}&numRows=${numRows}`);
+        let response = await fetch(`https://script.google.com/macros/s/AKfycbyQOk1quKqE0uRPyQ0mSpX2YGdR75EqCeUcP40uMSwcQfPQqXh40UOEP5tvpeWvMLg_3w/exec?startRow=${startRow}&numRows=${numRows}`);
         let result = await response.json();
 
         if (!result.totalRows) {
