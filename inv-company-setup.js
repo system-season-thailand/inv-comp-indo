@@ -311,21 +311,15 @@ function processInvoiceData(data) {
 
                 let hotel = cols[1]?.trim() || "Unknown Hotel"; // "Hotel Name" column
                 let hotelLocation = cols[2]?.trim(); // "Hotel Location" column
-                let roomType = cols[3]?.trim(); // "Room Type" column
-                let startDateRaw = cols[4]?.trim(); // "CHECK IN" column
-                let endDateRaw = cols[5]?.trim(); // "CHECK OUT" column
-                let unitAmount = cols[7]?.trim(); // "Unit Amount" column
+                let roomType = cols[3]?.trim() || "Unknown Room"; // "Room Type" column
+                let startDateRaw = cols[4]?.trim() || "N/A"; // "CHECK IN" column
+                let endDateRaw = cols[5]?.trim() || "N/A"; // "CHECK OUT" column
+                let unitAmount = cols[7]?.trim() || "N/A"; // "Unit Amount" column
 
-                // Handle cases where "Room Type" is missing or misaligned
-                if (!roomType || roomType.match(/^\d{1,2}-[A-Za-z]{3}$/)) {
-                    roomType = "Unknown Room";
-                    startDateRaw = cols[3]?.trim(); // Shift "CHECK IN" to cols[3]
-                    endDateRaw = cols[4]?.trim();   // Shift "CHECK OUT" to cols[4]
-                }
 
                 // Ensure "N/A" is used for missing or invalid dates
-                let startDate = (!startDateRaw || startDateRaw === "0" || startDateRaw === "1") ? "000" : parseDate(startDateRaw);
-                let endDate = (!endDateRaw || endDateRaw === "0" || endDateRaw === "1") ? "000" : parseDate(endDateRaw);
+                let startDate = parseDate(startDateRaw);
+                let endDate = parseDate(endDateRaw);
 
                 const nights = parseInt(cols[6]?.trim() || "0", 10); // "No of Nights" column
 
