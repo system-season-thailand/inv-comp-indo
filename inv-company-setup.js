@@ -787,8 +787,14 @@ function processInvoiceData(data) {
 
 
 
-    document.getElementById("today_inv_company_date_p_id").innerText =
-        `Date: ${new Date().getDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][new Date().getMonth()]} ${new Date().getFullYear()}`;
+    /* Set Today's Date */
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][today.getMonth()];
+    const year = today.getFullYear();
+
+    document.getElementById("today_inv_company_date_p_id").innerText = `Date: ${day} ${month} ${year}`;
+
 
 
 
@@ -844,42 +850,51 @@ function processInvoiceData(data) {
 
 
 
+/* Function to make all elements innerText editable */
 makeDivContentEditable = function () {
     const parentDiv = document.getElementById('whole_invoice_company_section_id');
-
-    // Make all child elements inside the div contenteditable
-    const childElements = parentDiv.querySelectorAll("p, pre"); // Target both <p> and <pre> elements
-
+    const childElements = parentDiv.querySelectorAll("p, pre");
 
     childElements.forEach(element => {
-        // Make the element contenteditable
         element.setAttribute('contenteditable', true);
 
-        // Add a focus event listener to each element
         element.addEventListener("focus", () => {
-            // Remove the default outline and borders when focused
             element.style.outline = "none";
             element.style.border = "none";
         });
 
-        // Optional: Add a blur event to restore styles if needed
         element.addEventListener("blur", () => {
-            // Restore the border and outline after losing focus
             element.style.outline = "";
             element.style.border = "";
         });
 
-        // Add an input event listener to detect text changes
         element.addEventListener("input", () => {
-
-            // Check if the element has the "red_text_color_class"
             if (element.classList.contains("red_text_color_class")) {
-                // Change the text color to black
-                element.style.color = "black";  // Change to black
+                element.style.color = "black";
+            }
+        });
+
+        element.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+
+                const br = document.createElement("br");
+
+                const selection = window.getSelection();
+                const range = selection.getRangeAt(0);
+                range.deleteContents(); // remove selected text if any
+                range.insertNode(br);
+
+                // Move caret after the <br>
+                range.setStartAfter(br);
+                range.setEndAfter(br);
+                selection.removeAllRanges();
+                selection.addRange(range);
             }
         });
     });
 };
+
 
 
 

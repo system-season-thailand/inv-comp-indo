@@ -256,8 +256,12 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
 
 
         /* Set Today's Date */
-        document.getElementById("today_inv_company_date_p_id").innerText =
-            `Date: ${new Date().getDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][new Date().getMonth()]} ${new Date().getFullYear()}`;
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][today.getMonth()];
+        const year = today.getFullYear();
+
+        document.getElementById("today_inv_company_date_p_id").innerText = `Date: ${day} ${month} ${year}`;
 
 
 
