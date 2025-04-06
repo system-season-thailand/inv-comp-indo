@@ -96,28 +96,72 @@ function openPdfDownloadBox() {
         namePdfBoxDiv.style.transform = 'translate(-50%, -50%)';
     }, 100);
 
+
+
+
     // Get the current date
     let currentDate = new Date();
 
-    // Get the current month and convert it to Roman numeral
-    let currentMonth = currentDate.getMonth() + 1; // Months are zero-based
-    let monthNumber = convertToRoman(currentMonth);
+    // Convert current month to Roman numeral
+    let currentMonth = currentDate.getMonth() + 1;
+    let Roman_monthNumber = convertToRoman(currentMonth);
 
-    // Get the current year as a four-digit number
-    let currentYear = new Date().getFullYear();
-    // Extract the last two digits of the year
+
+
+    /* in 6 Apr 2026 delete the following if codes (I used them to avoid error since they do't exist in old saved inv company) */
+    if (!document.getElementById("store_google_sheet_inv_orignal_month_value")) {
+        const monthElement = document.createElement('p');
+        monthElement.innerText = 'IV';
+        monthElement.id = 'store_google_sheet_inv_orignal_month_value';
+        document.getElementById('whole_invoice_company_section_id').appendChild(monthElement);
+    }
+    if (!document.getElementById("store_google_sheet_inv_orignal_year_value")) {
+        const yearElement = document.createElement('p');
+        yearElement.innerText = '25';
+        yearElement.id = 'store_google_sheet_inv_orignal_year_value';
+        document.getElementById('whole_invoice_company_section_id').appendChild(yearElement);
+    }
+
+
+
+
+
+    // Store Roman month if not already set
+    if (document.getElementById("store_google_sheet_inv_orignal_month_value").innerText === '') {
+        document.getElementById("store_google_sheet_inv_orignal_month_value").innerText = Roman_monthNumber;
+    }
+
+    // Get last two digits of the current year
+    let currentYear = currentDate.getFullYear();
     let lastTwoNumbersOfTheCurrentYear = currentYear % 100;
 
-
-
-
-
-    /* check if the current inv company is going through rev or no */
-    if (document.getElementById("current_used_rev_number_span_id")) {
-        document.getElementById('pdf_file_name_input_id').value = `Proforma INV ${document.getElementById("current_used_company_name_span_id").innerText} ${document.getElementById("current_used_inv_number_span_id").innerText}_${monthNumber}_${lastTwoNumbersOfTheCurrentYear} ${document.getElementById("current_used_rev_number_span_id").innerText} ${document.getElementById("current_used_client_name_span_id").innerText}`;
-    } else {
-        document.getElementById('pdf_file_name_input_id').value = `Proforma INV ${document.getElementById("current_used_company_name_span_id").innerText} ${document.getElementById("current_used_inv_number_span_id").innerText}_${monthNumber}_${lastTwoNumbersOfTheCurrentYear} ${document.getElementById("current_used_client_name_span_id").innerText}`;
+    // Store year if not already set
+    if (document.getElementById("store_google_sheet_inv_orignal_year_value").innerText === '') {
+        document.getElementById("store_google_sheet_inv_orignal_year_value").innerText = lastTwoNumbersOfTheCurrentYear;
     }
+
+    // Get all necessary values
+    let companyName = document.getElementById("current_used_company_name_span_id").innerText;
+    let invNumber = document.getElementById("current_used_inv_number_span_id").innerText;
+    let month = document.getElementById("store_google_sheet_inv_orignal_month_value").innerText;
+    let year = document.getElementById("store_google_sheet_inv_orignal_year_value").innerText;
+    let clientName = document.getElementById("current_used_client_name_span_id").innerText;
+    let revSpan = document.getElementById("current_used_rev_number_span_id");
+
+    // Build PDF name
+    let pdfName = `Proforma INV ${companyName} ${invNumber}_${month}_${year}`;
+    if (revSpan) pdfName += ` ${revSpan.innerText}`;
+    pdfName += ` ${clientName}`;
+
+    // Set file name
+    document.getElementById('pdf_file_name_input_id').value = pdfName;
+
+
+
+
+
+
+
 
 
     /* Function to hide the name pdf file box */
@@ -1058,29 +1102,29 @@ function setupTransportationCitiesOptions() {
         option.addEventListener("click", () => {
             if (currentElement) {
                 let currentText = currentElement.innerText.trim();
-        
+
                 // Normalize city names for comparison (case-insensitive)
                 const selectedCity = FlightDestination.trim();
                 const currentCities = currentText.split(",").map(city => city.trim().toLowerCase());
-        
+
                 // If the city already exists, do nothing
                 if (currentCities.includes(selectedCity.toLowerCase())) {
                     return;
                 }
-        
+
                 // If current text is 'Location' or 'N/A', replace with selected city
                 if (currentText === 'Location' || currentText === 'N/A') {
                     currentElement.innerText = selectedCity;
                 } else {
                     currentElement.innerText = `${currentText}, ${selectedCity}`;
                 }
-        
+
                 // Set text color to black
                 currentElement.style.color = 'black';
             }
         });
-        
-        
+
+
 
         optionsMenu.appendChild(option);
     });
@@ -1580,6 +1624,7 @@ async function checkThePdfNameToDownload() {
         sendDataToGoogleSheet()
 
 
+
         // Disable the button while processing
         const button = document.getElementById('check_pdf_name_button');
         button.style.pointerEvents = 'none';
@@ -1656,6 +1701,14 @@ async function checkThePdfNameToDownload() {
         redTextElements.forEach(element => {
             element.style.color = element.dataset.originalColor || 'red';
         });
+
+
+
+
+
+
+
+
 
 
 

@@ -4,6 +4,42 @@
 var googleSheetWebAppUrl = "https://script.google.com/macros/s/AKfycbyQOk1quKqE0uRPyQ0mSpX2YGdR75EqCeUcP40uMSwcQfPQqXh40UOEP5tvpeWvMLg_3w/exec";
 
 function sendDataToGoogleSheet() {
+
+
+    /* Get the Roman month name and the year of the inv company and store them in the google sheet for later use (when importing) */
+    const fileName = document.getElementById('pdf_file_name_input_id').value;
+
+    // Split the filename by spaces
+    const parts = fileName.split(' ');
+
+    // Initialize variables to hold month and year
+    let extractedMonth = null;
+    let extractedYear = null;
+
+    // Loop through all parts to find ones with "_" or "-"
+    for (const part of parts) {
+        let segments = [];
+
+        if (part.includes('_')) {
+            segments = part.split('_');
+        } else if (part.includes('-')) {
+            segments = part.split('-');
+        }
+
+        // Check if we got at least 3 segments (e.g., ["123", "Month", "24"])
+        if (segments.length >= 3) {
+            extractedMonth = segments[1];
+            extractedYear = segments[2];
+        }
+    }
+
+    /* Store the values in the html code for later use (when importing) */
+    document.getElementById('store_google_sheet_inv_orignal_month_value').innerText = extractedMonth;
+    document.getElementById('store_google_sheet_inv_orignal_year_value').innerText = extractedYear;
+
+
+
+
     // Get values from the spans
     var invNumber = document.getElementById("current_used_inv_number_span_id")?.innerText.trim() || "";
     var guestName = document.getElementById("current_used_client_name_span_id").innerText.trim() || "";
