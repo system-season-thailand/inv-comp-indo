@@ -734,7 +734,7 @@ function processInvoiceData(data) {
                 <p contenteditable="true">${new Date().getFullYear()}</p>
             </div>
             <div>
-                <p class="duplicate_this_element_class" contenteditable="true">${data.visaDyasNumber}</p>
+                <p class="duplicate_this_element_class" contenteditable="true" style="padding: 20px 0">${data.visaDyasNumber}</p>
             </div>
             <div>
                 <p contenteditable="true">INDONESIA</p>
