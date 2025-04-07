@@ -1650,42 +1650,36 @@ async function checkThePdfNameToDownload() {
         // Capture the div by ID
         const element = document.getElementById("whole_invoice_company_section_id");
 
-        // Convert the div content to an image
         html2canvas(element, {
             scale: 3,
             useCORS: true,
             logging: false,
         }).then(canvas => {
-            // Convert to compressed image
             const imgData = canvas.toDataURL("image/jpeg", 0.7);
-
-            // Create jsPDF instance
+        
+            const imgWidthPx = canvas.width;
+            const imgHeightPx = canvas.height;
+        
+            const pdfWidth = 210; // mm
+            const pxPerMm = imgWidthPx / pdfWidth;
+            const imgHeightMm = imgHeightPx / pxPerMm;
+        
+            const bottomPadding = 10; // mm
+            const pdfHeight = imgHeightMm + bottomPadding;
+        
             const pdf = new jspdf.jsPDF({
                 orientation: "portrait",
                 unit: "mm",
-                format: "a4",
+                format: [pdfWidth, pdfHeight],
             });
-
-            // Get PDF dimensions
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-
-            // Get image dimensions
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-
-            // Scale width to fit within PDF width
-            const scaledWidth = pdfWidth;
-            const scaledHeight = (imgHeight * scaledWidth) / imgWidth;
-
-            // Start position at the top (y = 0)
-            let y = 0;
-
-            // Add image to PDF (starting from the top)
-            pdf.addImage(imgData, "JPEG", 0, y, scaledWidth, scaledHeight);
-
-            // Trigger PDF download
-            pdf.save(`${document.getElementById('pdf_file_name_input_id').value}.pdf`);
+        
+            pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, imgHeightMm);
+        
+            const fileName = document.getElementById('pdf_file_name_input_id').value || "invoice";
+            pdf.save(`${fileName}.pdf`);
         });
+        
+        
 
 
 
