@@ -140,21 +140,49 @@ function openPdfDownloadBox() {
         document.getElementById("store_google_sheet_inv_orignal_year_value").innerText = lastTwoNumbersOfTheCurrentYear;
     }
 
-    // Get all necessary values
-    let companyName = document.getElementById("current_used_company_name_span_id").innerText;
-    let invNumber = document.getElementById("current_used_inv_number_span_id").innerText;
-    let month = document.getElementById("store_google_sheet_inv_orignal_month_value").innerText;
-    let year = document.getElementById("store_google_sheet_inv_orignal_year_value").innerText;
-    let clientName = document.getElementById("current_used_client_name_span_id").innerText;
-    let revSpan = document.getElementById("current_used_rev_number_span_id");
 
-    // Build PDF name
-    let pdfName = `Proforma INV ${companyName} ${invNumber}_${month}_${year}`;
-    if (revSpan) pdfName += ` ${revSpan.innerText}`;
-    pdfName += ` ${clientName}`;
 
-    // Set file name
-    document.getElementById('pdf_file_name_input_id').value = pdfName;
+    if (document.getElementById("dataInput").value !== '' || new_or_imported_inv_company_variable !== 'new_invoice_company') {
+
+        /* in 7 Apr 2026 delete the first if and keep only the else (I used it to avoid error in old packages) */
+        if (!document.getElementById("current_used_company_name_p_id")) {
+
+            // Get all necessary values
+            let companyName = document.getElementById("current_used_company_name_span_id").innerText;
+            let invNumber = document.getElementById("store_google_sheet_inv_number").innerText;
+            let month = document.getElementById("store_google_sheet_inv_orignal_month_value").innerText;
+            let year = document.getElementById("store_google_sheet_inv_orignal_year_value").innerText;
+            let clientName = document.getElementById("current_used_client_name_span_id").innerText;
+            let revSpan = document.getElementById("current_used_rev_number_span_id").innerText;
+
+            // Build PDF name
+            let pdfName = `Proforma INV ${companyName} ${invNumber}_${month}_${year}`;
+            if (revSpan) pdfName += ` ${revSpan}`;
+            pdfName += ` ${clientName}`;
+
+            // Set file name
+            document.getElementById('pdf_file_name_input_id').value = pdfName;
+
+        } else {
+            // Get all necessary values
+            let companyName = document.getElementById("current_used_company_name_p_id").innerText;
+            let invNumber = document.getElementById("current_used_inv_number_span_id").innerText;
+            let month = document.getElementById("store_google_sheet_inv_orignal_month_value").innerText;
+            let year = document.getElementById("store_google_sheet_inv_orignal_year_value").innerText;
+            let clientNameRaw = document.getElementById("current_used_guest_name_p_id").innerText;
+            let clientName = clientNameRaw.replace(/[()]/g, '').trim();
+            let revSpan = document.getElementById("current_used_rev_number_span_id").innerText;
+
+            // Build PDF name
+            let pdfName = `Proforma INV ${companyName} ${invNumber}_${month}_${year}`;
+            if (revSpan) pdfName += ` ${revSpan}`;
+            pdfName += ` ${clientName}`;
+
+            // Set file name
+            document.getElementById('pdf_file_name_input_id').value = pdfName;
+        }
+    }
+
 
 
 
@@ -217,13 +245,35 @@ function processInvoiceData(data) {
     const travelAgency = guestBy.match(/\(([^)]+)\)/)?.[1] || guestBy;
 
 
-    document.querySelector("#proforma_invoice_date_and_number_div_id p:nth-child(3)").innerHTML = `Inv No: F<span id="current_used_inv_number_span_id">${invoiceNo}</span>`;
+    document.querySelector("#current_used_inv_number_span_id").innerText = invoiceNo;
 
 
-    // Check if travelAgency includes "SYABAB"
-    const finalTravelAgency = travelAgency.toUpperCase().includes("SYABAB") ? "MR. RAYAN" : travelAgency;
-    document.querySelector("#invoice_company_guest_name_p_id").innerHTML = `UP TO: <span id="current_used_company_name_span_id" class="bold_text upper_case_text">${finalTravelAgency}</span> (<span id="current_used_client_name_span_id">${clientName}</span>)`;
+    let travelAgencyUpper = travelAgency.toUpperCase();
+    let finalTravelAgency;
 
+    if (travelAgencyUpper.includes("RAYAN")) {
+        finalTravelAgency = "MR. RAYAN";
+    } else if (travelAgencyUpper.includes("SECRET")) {
+        finalTravelAgency = "SECRET";
+    } else if (travelAgencyUpper.includes("TURKI")) {
+        finalTravelAgency = "MR. TURKI";
+    } else if (travelAgencyUpper.includes("TARIQ")) {
+        finalTravelAgency = "MR. TARIQ";
+    } else if (travelAgencyUpper.includes("SYABAB")) {
+        finalTravelAgency = "MR. RAYAN";
+    } else {
+        finalTravelAgency = travelAgency;
+    }
+
+
+
+    /* in 7 Apr 2026 delete the first if and keep only the else (I used it to avoid error in old packages) */
+    if (!document.getElementById("current_used_company_name_p_id")) {
+        document.querySelector("#invoice_company_guest_name_p_id").innerHTML = `UP TO: <span id="current_used_company_name_span_id" class="bold_text upper_case_text">${finalTravelAgency}</span> (<span id="current_used_client_name_span_id">${clientName}</span>)`;
+    } else {
+        document.querySelector("#current_used_company_name_p_id").innerHTML = finalTravelAgency;
+        document.querySelector("#current_used_guest_name_p_id").innerHTML = `(${clientName})`;
+    }
 
 
     /* Store the values in the google sheet for later refrence (when importing) */
@@ -238,12 +288,13 @@ function processInvoiceData(data) {
 
         const months = {
             "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
-            "Mei": "05", "Jun": "06", "Jul": "07", "Aug": "08",
+            "Mei": "05", "Jun": "06", "Jul": "07", "Agu": "08",
             "Sep": "09", "Oct": "10", "Nov": "11", "Des": "12"
         };
 
         const monthReplacements = {
             "Mei": "May",
+            "Agu": "Aug",
             "Des": "Dec"
         };
 
@@ -618,7 +669,7 @@ function processInvoiceData(data) {
                 <p contenteditable="true">${flightDates}</p>
             </div>
             <div>
-                <p class="duplicate_this_element_class" contenteditable="true" style="padding: 20px 0">Domestic Flight Tickets</p>
+                <p class="duplicate_this_element_class" contenteditable="true" style="padding: 25px 0">Domestic Flight Tickets</p>
             </div>
             <div>
                 <p class="flight_destination_text_options_class" contenteditable="true">${getFlightDestination()}</p>
@@ -701,7 +752,7 @@ function processInvoiceData(data) {
                 <p>${mergedDates}</p>
             </div>
             <div>
-                <p class="duplicate_this_element_class" style="padding: 20px 0">TRANSPORTATION + SIM CARD</p>
+                <p class="duplicate_this_element_class" style="padding: 25px 0">TRANSPORTATION + SIM CARD</p>
             </div>
             <div>
                 <p class="transportation_cities_text_options_class">${allHotelLocationsSeparatedByComma}</p>
@@ -734,7 +785,7 @@ function processInvoiceData(data) {
                 <p contenteditable="true">${new Date().getFullYear()}</p>
             </div>
             <div>
-                <p class="duplicate_this_element_class" contenteditable="true" style="padding: 20px 0">${data.visaDyasNumber}</p>
+                <p class="duplicate_this_element_class" contenteditable="true" style="padding: 25px 0">${data.visaDyasNumber}</p>
             </div>
             <div>
                 <p contenteditable="true">INDONESIA</p>
@@ -811,7 +862,7 @@ function processInvoiceData(data) {
                 <p class="duplicate_this_element_class">Total</p>
             </div>
             <div style="border-right: 0.5px solid black;">
-                <p>${currency}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${formattedTotal}</p>
+                <p style="padding: 5px 0">${currency}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${formattedTotal}</p>
             </div>`;
 
         totalDiv.appendChild(rowDiv);
@@ -1614,7 +1665,7 @@ searchBarInputElements.forEach(input => {
 /* Download the PDF file */
 async function checkThePdfNameToDownload() {
 
-    if (document.getElementById("current_used_client_name_span_id").innerText !== '' && document.getElementById("current_used_inv_number_span_id")?.innerText !== '') {
+    if (document.getElementById("current_used_guest_name_p_id").innerText !== '' && document.getElementById("current_used_inv_number_span_id")?.innerText !== '') {
 
         // Play a sound effect
         playSoundEffect('success');
@@ -1651,35 +1702,45 @@ async function checkThePdfNameToDownload() {
         const element = document.getElementById("whole_invoice_company_section_id");
 
         html2canvas(element, {
-            scale: 3,
+            scale: 2,
             useCORS: true,
             logging: false,
         }).then(canvas => {
-            const imgData = canvas.toDataURL("image/jpeg", 0.7);
+            const imgData = canvas.toDataURL("image/jpeg", 0.95);
         
             const imgWidthPx = canvas.width;
             const imgHeightPx = canvas.height;
         
-            const pdfWidth = 210; // mm
-            const pxPerMm = imgWidthPx / pdfWidth;
-            const imgHeightMm = imgHeightPx / pxPerMm;
+            const pdfWidthMm = 210;      // A4 width
+            const a4HeightMm = 297;      // A4 height
+            const bottomPaddingMm = 10;  // Padding for tall content
         
-            const bottomPadding = 10; // mm
-            const pdfHeight = imgHeightMm + bottomPadding;
+            const pxPerMm = imgWidthPx / pdfWidthMm;
+            const contentHeightMm = imgHeightPx / pxPerMm;
+        
+            // Add bottom padding only if height exceeds standard A4 height
+            const pdfHeightMm = contentHeightMm > a4HeightMm
+                ? contentHeightMm + bottomPaddingMm
+                : a4HeightMm;
         
             const pdf = new jspdf.jsPDF({
                 orientation: "portrait",
                 unit: "mm",
-                format: [pdfWidth, pdfHeight],
+                format: [pdfWidthMm, pdfHeightMm]
             });
         
-            pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, imgHeightMm);
+            // Position image at top-left, scaled to full width
+            pdf.addImage(imgData, "JPEG", 0, 0, pdfWidthMm, contentHeightMm);
         
             const fileName = document.getElementById('pdf_file_name_input_id').value || "invoice";
             pdf.save(`${fileName}.pdf`);
         });
         
-        
+
+
+
+
+
 
 
 

@@ -1,3 +1,5 @@
+let new_or_imported_inv_company_variable = 'new_invoice_company';
+
 
 
 // Your Google Apps Script Web App URL
@@ -42,7 +44,7 @@ function sendDataToGoogleSheet() {
 
     // Get values from the spans
     var invNumber = document.getElementById("current_used_inv_number_span_id")?.innerText.trim() || "";
-    var guestName = document.getElementById("current_used_client_name_span_id").innerText.trim() || "";
+    var guestName = document.getElementById("current_used_guest_name_p_id").innerText.trim().replace(/[()]/g, '').trim() || "";
     var revNumber = document.getElementById("current_used_rev_number_span_id")?.innerText.trim() || "";
 
     // Format the name
@@ -308,10 +310,13 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
         let revNumElement = document.getElementById('store_google_sheet_current_inv_company_rev_number_id');
 
         let revNum = parseInt(revNumElement.innerText, 10) + 1;
-        document.querySelector("#proforma_invoice_date_and_number_div_id p:nth-child(3)").innerHTML = `Inv No: F<span id="current_used_inv_number_span_id">${document.getElementById("current_used_inv_number_span_id").innerText}</span> <span id="current_used_rev_number_span_id" class="bold_text">Rev${revNum}</span>`;
+        document.querySelector("#current_used_rev_number_span_id").innerText = `Rev${revNum}`;
         revNumElement.innerText = parseInt(revNumElement.innerText, 10) + 1;
 
 
+
+
+        new_or_imported_inv_company_variable = 'imported_inv_company';
 
     } else {
 
