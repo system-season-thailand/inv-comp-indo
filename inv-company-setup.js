@@ -269,11 +269,14 @@ function processInvoiceData(data) {
         finalTravelAgency = "MR. TURKI";
     } else if (travelAgencyUpper.includes("TARIQ")) {
         finalTravelAgency = "MR. TARIQ";
+    } else if (travelAgencyUpper.includes("SAMI")) {
+        finalTravelAgency = "BOSS SAMI";
     } else if (travelAgencyUpper.includes("SYABAB")) {
         finalTravelAgency = "MR. RAYAN";
     } else {
         finalTravelAgency = travelAgency;
     }
+
 
 
 
@@ -835,21 +838,28 @@ function processInvoiceData(data) {
         // Format total number with commas
         const formattedTotal = Number(total).toLocaleString();
 
-        // Update logo based on currency
-        const logoElement = document.getElementById("inv_comp_logo");
-        if (logoElement) {
-            logoElement.src = currency === "IDR" ? "fanadiq-logo.jpg" : "season-logo.jpg";
-        }
+
 
         // Update background and text color based on currency
         const mainDiv = document.getElementById("main_inv_company_row_id");
         if (mainDiv) {
             if (currency === "IDR") {
                 mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
-            } else {
+                logoElement = document.getElementById("inv_comp_logo").src = "fanadiq-logo.jpg";
+
+            } else if (currency === "SAR" && agencyUpper === 'BOSS SAMI') {
+                mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
+                logoElement = document.getElementById("inv_comp_logo").src = "fanadiq-logo.jpg";
+            }
+
+            else {
                 mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
+                logoElement = document.getElementById("inv_comp_logo").src = "season-logo.jpg";
             }
         }
+
+        
+
 
         // Toggle payment details visibility based on currency
         const paymentDetails1 = document.getElementById("payment_details_1");
