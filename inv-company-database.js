@@ -160,7 +160,6 @@ const loadAllData = async () => {
     // Fetch the total number of rows
     let initialFetch = await fetchBatch(1, 1);
 
-    console.log("🟢 Initial Fetch Response:", initialFetch);
 
     let totalRows = initialFetch.totalRows || 0;
 
@@ -254,7 +253,6 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
         // Play a sound effect
         playSoundEffect('success');
 
-        console.log(`✅ Importing content for: ${clickedGoogleSheetDataName.innerText.trim()}`);
 
         /* Insert the imported data into the 'whole_invoice_company_section_id' */
         wholeInvoiceSection.innerHTML = foundObject.content;
@@ -323,8 +321,6 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
         // Get all <h3> elements inside the 'all_google_sheet_stored_data_names_for_importing_data_div' div
         let allGoogleSheetStoredDataNamesForImportingDataDiv = document.querySelectorAll('#all_google_sheet_stored_data_names_for_importing_data_div h3');
 
-
-        console.log("🎯 Highlighting selected name:", clickedGoogleSheetDataName.innerText);
 
         // Loop through each <h3> element to reset their styles
         allGoogleSheetStoredDataNamesForImportingDataDiv.forEach(function (dataName) {

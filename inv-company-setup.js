@@ -62,6 +62,16 @@ deleteTextAre = function () {
 
 
 
+/* Function to make the first letter of each word to be capital */
+const toTitleCase = (str) => {
+    return str
+        .toLowerCase()
+        .split(" ")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+};
+
+
 
 
 /* Function to convert a number to Roman numeral */
@@ -348,7 +358,6 @@ function processInvoiceData(data) {
 
             if (match) {
                 total = match[2].replace(/,/g, '').trim(); // Remove commas and trim
-                console.log(total);
             }
 
 
@@ -396,9 +405,6 @@ function processInvoiceData(data) {
                     visaDyasNumber: cols[1]?.trim() || "VISA", // "Room Type" column
                     personAmount: cols[7]?.trim() || "1", // "Units" column
                 };
-
-
-                console.log(cols[7]?.trim());
             }
 
 
@@ -410,7 +416,7 @@ function processInvoiceData(data) {
 
                 let hotel = cols[1]?.trim() || "Unknown Hotel"; // "Hotel Name" column
                 let hotelLocation = cols[2]?.trim(); // "Hotel Location" column
-                let roomType = cols[3]?.trim() || "Unknown Room"; // "Room Type" column
+                let roomType = toTitleCase(cols[3]?.trim() || "Unknown Room"); // "Room Type" column
                 let startDateRaw = cols[4]?.trim() || "N/A"; // "CHECK IN" column
                 let endDateRaw = cols[5]?.trim() || "N/A"; // "CHECK OUT" column
                 let unitAmount = cols[7]?.trim() || "N/A"; // "Unit Amount" column
@@ -445,6 +451,8 @@ function processInvoiceData(data) {
         let prevHotel = null;
 
         hotels.forEach((hotel) => {
+            const roomTypeLower = hotel.roomType.toLowerCase();
+
             if (
                 prevHotel &&
                 prevHotel.hotel === hotel.hotel &&
@@ -456,10 +464,11 @@ function processInvoiceData(data) {
             } else if (
                 prevHotel &&
                 prevHotel.hotel === hotel.hotel &&
-                /extra bed|decor/i.test(hotel.roomType)
+                /extra bed|decor/i.test(roomTypeLower)
             ) {
-                // Append "Extra Bed" or "Decor" to the main room type
-                prevHotel.roomType += ` + ${hotel.roomType}`;
+                // Append "3 Extra Bed" or "2 Decor" to the main room type
+                const prefix = hotel.unitAmount && hotel.unitAmount !== "N/A" ? `${hotel.unitAmount} ` : "";
+                prevHotel.roomType += ` + ${prefix}${hotel.roomType}`;
             } else if (
                 prevHotel &&
                 prevHotel.hotel === hotel.hotel &&
@@ -479,6 +488,7 @@ function processInvoiceData(data) {
 
         // Push the last hotel entry
         if (prevHotel) mergedHotels.push(prevHotel);
+
 
         return { hotels: mergedHotels, flights, transport, visa, total };
 
@@ -1696,6 +1706,11 @@ async function checkThePdfNameToDownload() {
 
 
 
+        /* Hide the guest code div if there is no code value */
+        if (document.getElementById("invoice_company_guest_code_value") && document.getElementById("invoice_company_guest_code_value").innerText === '') {
+            document.getElementById("invoice_company_guest_code_div").style.display = 'none';
+        }
+
 
 
         // Capture the div by ID
@@ -1707,35 +1722,34 @@ async function checkThePdfNameToDownload() {
             logging: false,
         }).then(canvas => {
             const imgData = canvas.toDataURL("image/jpeg", 0.95);
-        
+
             const imgWidthPx = canvas.width;
             const imgHeightPx = canvas.height;
-        
+
             const pdfWidthMm = 210;      // A4 width
             const a4HeightMm = 297;      // A4 height
             const bottomPaddingMm = 10;  // Padding for tall content
-        
+
             const pxPerMm = imgWidthPx / pdfWidthMm;
             const contentHeightMm = imgHeightPx / pxPerMm;
-        
+
             // Add bottom padding only if height exceeds standard A4 height
             const pdfHeightMm = contentHeightMm > a4HeightMm
                 ? contentHeightMm + bottomPaddingMm
                 : a4HeightMm;
-        
+
             const pdf = new jspdf.jsPDF({
                 orientation: "portrait",
                 unit: "mm",
                 format: [pdfWidthMm, pdfHeightMm]
             });
-        
+
             // Position image at top-left, scaled to full width
             pdf.addImage(imgData, "JPEG", 0, 0, pdfWidthMm, contentHeightMm);
-        
+
             const fileName = document.getElementById('pdf_file_name_input_id').value || "invoice";
             pdf.save(`${fileName}.pdf`);
         });
-        
 
 
 
@@ -1746,6 +1760,12 @@ async function checkThePdfNameToDownload() {
 
 
 
+
+
+
+
+        /* Show the guest code div */
+        document.getElementById("invoice_company_guest_code_div").style.display = 'flex';
 
 
 

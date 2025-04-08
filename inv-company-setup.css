@@ -168,6 +168,7 @@ button {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: flex-start;
 }
 
 #proforma_invoice_date_and_number_div_id p {
@@ -181,6 +182,16 @@ button {
     justify-content: center;
     align-items: center;
     white-space: nowrap; /* 🧠 Prevent wrapping */
+}
+
+.invoice_company_guest_info_text_div{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: fit-content;
+    align-self: center;
+    justify-self: center;
 }
 
 #proforma_invoice_logo_and_location_div_id {
@@ -217,6 +228,17 @@ button {
 #invoice_company_guest_name_div_id p {
     padding: 0 5px;
     font-size: 1.5rem;
+}
+
+#invoice_company_guest_code_div{
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#invoice_company_guest_code_div p{
+    font-size: 1.5rem;
+    padding: 0 5px;
 }
 
 #the_full_payment_is_required_2_weeks_prior_arrival_p_id {
