@@ -510,6 +510,21 @@ function processInvoiceData(data) {
 
         const defaultYear = "2025"; // Set default year if missing
 
+        const monthReplacements = {
+            "Jan": "Jan",
+            "Feb": "Feb",
+            "Mar": "Mar",
+            "Apr": "Apr",
+            "Mei": "May",
+            "Jun": "Jun",
+            "Jul": "Jul",
+            "Agu": "Aug",
+            "Sep": "Sep",
+            "Okt": "Oct",
+            "Nov": "Nov",
+            "Des": "Dec"
+        };
+
         // Parse dates into parts
         const startParts = startDate.split(" ");
         const endParts = endDate.split(" ");
@@ -517,11 +532,15 @@ function processInvoiceData(data) {
         let [startDay, startMonth, startYear] = startParts;
         let [endDay, endMonth, endYear] = endParts;
 
+        // Replace non-English months with English ones
+        startMonth = monthReplacements[startMonth] || startMonth;
+        endMonth = monthReplacements[endMonth] || endMonth;
+
         // If year is missing, set default
         if (!startYear) startYear = defaultYear;
         if (!endYear) endYear = defaultYear;
 
-        // Case 1: Same year and same month → "6-9 Jul 2025"
+        // Case 1: Same year and same month → "6 - 9 Jul 2025"
         if (startYear === endYear && startMonth === endMonth) {
             return `${startDay} - ${endDay} ${startMonth} ${startYear}`;
         }
@@ -724,11 +743,24 @@ function processInvoiceData(data) {
         // Function to ensure the date includes a year
         const parseDateWithDefaultYear = (dateString) => {
             if (!dateString) return `N/A`;
+
+            const monthReplacements = {
+                "Mei": "May",
+                "Agu": "Aug",
+                "Okt": "Oct",
+                "Des": "Dec"
+            };
+
             const parts = dateString.split(" ");
             let [day, month, year] = parts;
-            if (!year) year = defaultYear; // Assign default year if missing
+            if (!year) year = defaultYear;
+            if (monthReplacements[month]) {
+                month = monthReplacements[month];
+            }
+
             return `${day} ${month} ${year}`;
         };
+
 
         // Format and merge startDate and endDate like hotels
         const formattedStartDate = parseDateWithDefaultYear(data.startDate);
@@ -858,7 +890,7 @@ function processInvoiceData(data) {
             }
         }
 
-        
+
 
 
         // Toggle payment details visibility based on currency
