@@ -184,6 +184,10 @@ button {
     white-space: nowrap; /* 🧠 Prevent wrapping */
 }
 
+#proforma_invoice_number_div_id p:nth-of-type(3) {
+    margin-left: 10px;
+}
+
 .invoice_company_guest_info_text_div{
     display: flex;
     flex-direction: column;
