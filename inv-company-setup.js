@@ -467,7 +467,7 @@ function processInvoiceData(data) {
             } else if (
                 prevHotel &&
                 prevHotel.hotel === hotel.hotel &&
-                /extra bed|decor/i.test(roomTypeLower)
+                /extra bed|decor|dinner/i.test(roomTypeLower)
             ) {
                 // Append "3 Extra Bed" or "2 Decor" to the main room type
                 const prefix = hotel.unitAmount && hotel.unitAmount !== "N/A" ? `${hotel.unitAmount} ` : "";
@@ -896,16 +896,22 @@ function processInvoiceData(data) {
         // Toggle payment details visibility based on currency
         const paymentDetails1 = document.getElementById("payment_details_1");
         const paymentDetails2 = document.getElementById("payment_details_2");
+        const paymentDetails3 = document.getElementById("payment_details_3");
 
-        if (paymentDetails1 && paymentDetails2) {
-            if (currency === "IDR") {
-                paymentDetails1.style.display = "none";
-                paymentDetails2.style.display = "block";
-            } else {
-                paymentDetails1.style.display = "block";
-                paymentDetails2.style.display = "none";
-            }
+        if (currency === "IDR") {
+            paymentDetails1.style.display = "block";
+            paymentDetails2.style.display = "none";
+            paymentDetails3.style.display = "none";
+        } else if (currency === "USD") {
+            paymentDetails1.style.display = "none";
+            paymentDetails2.style.display = "block";
+            paymentDetails3.style.display = "none";
+        } else {
+            paymentDetails1.style.display = "none";
+            paymentDetails2.style.display = "none";
+            paymentDetails3.style.display = "block";
         }
+
 
         const rowDiv = document.createElement("div");
         rowDiv.className = "invoice_company_row_div_class last_invoice_company_row_div_class";
