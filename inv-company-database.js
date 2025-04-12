@@ -308,24 +308,27 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
         const invNumElement = document.querySelector("#current_used_inv_number_span_id");
         let revNumElement = document.querySelector("#current_used_rev_number_span_id");
         let revNumValue = document.querySelector("#store_google_sheet_current_inv_company_rev_number_id");
-        
-        let revNum = revNumValue
-            ? parseInt(revNumValue.innerText.replace("Rev", ""), 10) + 1
-            : 1;
-        
+
+
         if (!revNumElement) {
             // Create the element since it doesn't exist
             revNumElement = document.createElement("p");
             revNumElement.id = "current_used_rev_number_span_id";
             revNumElement.classList.add("bold_text");
-            
+
             // Insert it after the inv number element
             invNumElement.parentNode.insertBefore(revNumElement, invNumElement.nextSibling);
         }
-        
+
+
+        // Increment the rev number stored in the hidden element
+        if (revNumValue) {
+            const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
+            revNumValue.innerText = `${currentStoredRev + 1}`;
+        }
+
         // Set the text
-        revNumElement.innerText = `Rev${revNum}`;
-        
+        revNumElement.innerText = `Rev${revNumValue.innerText}`;
 
 
 

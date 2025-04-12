@@ -255,7 +255,10 @@ function processInvoiceData(data) {
     const travelAgency = guestBy.match(/\(([^)]+)\)/)?.[1] || guestBy;
 
 
-    document.querySelector("#current_used_inv_number_span_id").innerText = invoiceNo;
+    // Always format invoice number to 4 digits with leading zeros
+    const formattedInvoiceNo = invoiceNo.padStart(4, "0");
+    document.querySelector("#current_used_inv_number_span_id").innerText = formattedInvoiceNo;
+
 
 
     let travelAgencyUpper = travelAgency.toUpperCase();
