@@ -305,11 +305,27 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
 
 
         /* Set Rev in the inv number */
-        let revNumElement = document.getElementById('store_google_sheet_current_inv_company_rev_number_id');
-
-        let revNum = parseInt(revNumElement.innerText, 10) + 1;
-        document.querySelector("#current_used_rev_number_span_id").innerText = `Rev${revNum}`;
-        revNumElement.innerText = parseInt(revNumElement.innerText, 10) + 1;
+        const invNumElement = document.querySelector("#current_used_inv_number_span_id");
+        let revNumElement = document.querySelector("#current_used_rev_number_span_id");
+        let revNumValue = document.querySelector("#store_google_sheet_current_inv_company_rev_number_id");
+        
+        let revNum = revNumValue
+            ? parseInt(revNumValue.innerText.replace("Rev", ""), 10) + 1
+            : 1;
+        
+        if (!revNumElement) {
+            // Create the element since it doesn't exist
+            revNumElement = document.createElement("p");
+            revNumElement.id = "current_used_rev_number_span_id";
+            revNumElement.classList.add("bold_text");
+            
+            // Insert it after the inv number element
+            invNumElement.parentNode.insertBefore(revNumElement, invNumElement.nextSibling);
+        }
+        
+        // Set the text
+        revNumElement.innerText = `Rev${revNum}`;
+        
 
 
 
