@@ -898,7 +898,7 @@ function processInvoiceData(data) {
         const paymentDetails2 = document.getElementById("payment_details_2");
         const paymentDetails3 = document.getElementById("payment_details_3");
 
-        if (currency === "IDR") {
+        if (currency === "SAR") {
             paymentDetails1.style.display = "block";
             paymentDetails2.style.display = "none";
             paymentDetails3.style.display = "none";
