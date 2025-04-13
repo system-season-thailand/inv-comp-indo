@@ -870,13 +870,16 @@ function processInvoiceData(data) {
         }
 
 
-        // Format total number with commas
-        const formattedTotal = Number(total).toLocaleString();
+
+        /* Get the elements to update them based on the company value */
+        const mainDiv = document.getElementById("main_inv_company_row_id");
+        const top_left_inv_company_orignal_div_id = document.getElementById("top_left_inv_company_orignal_div_id");
+        const top_left_inv_company_golden_div_id = document.getElementById("top_left_inv_company_golden_div_id");
+        const invoice_company_golden_under_guest_name_info_div = document.getElementById("invoice_company_golden_under_guest_name_info_div");
 
 
 
         // Update background and text color based on currency
-        const mainDiv = document.getElementById("main_inv_company_row_id");
         if (mainDiv) {
             if (currency === "IDR") {
                 mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
@@ -888,10 +891,34 @@ function processInvoiceData(data) {
             }
 
             else {
+
                 mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
                 logoElement = document.getElementById("inv_comp_logo").src = "season-logo.jpg";
+
+                
+                // Determine the orignal styling or the golden travel
+                if (agencyUpper.includes("GOLDEN TRAVEL")) {
+                    mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
+                    top_left_inv_company_orignal_div_id.style.display = "none";
+                    top_left_inv_company_golden_div_id.style.display = "flex";
+                    invoice_company_golden_under_guest_name_info_div.style.display = "block";
+                } else {
+                    mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
+                    top_left_inv_company_orignal_div_id.style.display = "flex";
+                    top_left_inv_company_golden_div_id.style.display = "none";
+                    invoice_company_golden_under_guest_name_info_div.style.display = "none";
+                }
             }
         }
+
+
+
+
+
+        // Format total number with commas
+        const formattedTotal = Number(total).toLocaleString();
+
+
 
 
 

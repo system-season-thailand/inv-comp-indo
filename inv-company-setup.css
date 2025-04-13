@@ -198,7 +198,7 @@ button {
     justify-self: center;
 }
 
-#proforma_invoice_logo_and_location_div_id {
+.top_left_inv_company_detials_div_class {
     display: flex;
     flex-direction: column;
     padding: 0 5px;
@@ -206,12 +206,12 @@ button {
     padding-top: 30px;
 }
 
-#proforma_invoice_logo_and_location_div_id img {
+.top_left_inv_company_detials_div_class img {
     align-self: center;
     width: 15rem;
 }
 
-#proforma_invoice_logo_and_location_div_id p {
+.top_left_inv_company_detials_div_class p {
     font-size: 1.2rem;
     text-align: left;
     padding-left: 30px;
