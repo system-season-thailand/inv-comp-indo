@@ -25,6 +25,12 @@
 
 
 
+    <div id="website_invoice_type_div">
+        <a href="https://system-season-thailand.github.io/inv-tax/" target="_blank">INVOICE TAX SYSTEM</a>
+    </div>
+
+
+
 
     <div id="all_inv_office_insert_data_content">
 
@@ -32,7 +38,7 @@
         <h1>Dynamic INV Company Data</h1>
 
         <textarea id="dataInput" placeholder="Paste your data here"></textarea>
-        <button onclick="playSoundEffect('click'); deleteTextAre()" style="background: red;">Reset</button>
+        <button onclick="playSoundEffect('click'); deleteTextAre()">Reset</button>
 
     </div>
 
@@ -60,7 +66,8 @@
 
             </div>
 
-            <div class="top_left_inv_company_detials_div_class" id="top_left_inv_company_golden_div_id" style="display: none;">
+            <div class="top_left_inv_company_detials_div_class" id="top_left_inv_company_golden_div_id"
+                style="display: none;">
 
                 <p>وكالة جزر الاحلام للسفر والسياحة</p>
                 <p>سلامه الوافي , 8470 , حي النواريه</p>
@@ -74,9 +81,11 @@
 
 
 
+
             <div id="proforma_invoice_date_and_number_div_id">
 
                 <p style="font-weight: bolder;">PROFORMA INVOICE</p>
+
                 <p id="today_inv_company_date_p_id"></p>
 
                 <div id="proforma_invoice_number_div_id">
@@ -114,6 +123,7 @@
 
 
 
+
                 <div id="invoice_company_guest_code_div">
                     <p id="invoice_company_guest_code_title">Code: </p>
                     <p id="invoice_company_guest_code_value"></p>
@@ -124,17 +134,19 @@
 
 
 
-            <div id="invoice_company_golden_under_guest_name_info_div" style="font-size: 1.4rem; text-align: left; padding: 0 220px; direction: rtl; margin: 30px 0; display: none;">
+            <div id="invoice_company_golden_under_guest_name_info_div"
+                style="font-size: 1.4rem; text-align: left; padding: 0 220px; direction: rtl; margin: 30px 0; display: none;">
                 <p>شركة الوكالة الذهبية العالمية للسفر والسياحة المحدودة</p>
                 <p>الرقم الضريبي : 301119158500003</p>
                 <p>العنوان : المدينة المنورة , الاسكان , تاح الاصفهنجي , 42317</p>
             </div>
 
 
-            
+
             <br>
 
-            <p style="font-size: 1.4rem; text-align: left; padding: 0 220px; direction: ltr;">
+            <p id="invoice_company_thank_you_text_p_id"
+                style="font-size: 1.4rem; text-align: left; padding: 0 220px; direction: ltr;">
                 Thank you for your interest in our specially designed package for your holidays in Indonesia.
                 Please find the pricing below for a few options that will surely answer your request, and I remain at
                 your disposal for further information or any modification of your itinerary or accommodation.
@@ -184,6 +196,9 @@
 
 
 
+
+
+
         <br>
 
 
@@ -204,7 +219,7 @@
 
 
 
-        <div id="payment_details_1" class="invoice_company_bottom_payment_info_div_class">
+        <div id="payment_details_1" class="invoice_company_bottom_payment_info_div_class" style="display: none;">
 
             <p>Please refer to above of your term of payment and settle your payment to our bank detail
                 below</p>
@@ -246,7 +261,7 @@
             <pre>Bank Name                   : Mandiri</pre>
             <pre>Account                        : 1210007258696</pre>
 
-            
+
             <br>
             <br>
 
@@ -311,9 +326,6 @@
 
 
 
-
-
-
         <!-- Store the data here for later refrence when importing -->
         <p id="store_google_sheet_inv_orignal_month_value" style="display: none;"></p>
         <p id="store_google_sheet_inv_orignal_year_value" style="display: none;"></p>
@@ -357,7 +369,7 @@
 
     <div id="import_saved_data_from_database_id">
         <button
-            onclick="playSoundEffect('click'); showOverlay('import_google_sheet_data_names_dropdown')">Import</button>
+            onclick="showOverlay('import_google_sheet_data_names_dropdown')">Import</button>
     </div>
 
 
@@ -368,8 +380,6 @@
     <!-- Dropdown Div For Hotel Locations -->
     <div id="import_google_sheet_data_names_dropdown"
         class="searchable_names_dropdown_class google_sheet_dropdown_div_class">
-        <h6 id="import_packages_title_h6_id">Import Data</h6>
-
 
         <div class="search_bar_div_class">
             <input type="text" id="import_google_sheet_data_names_search_bar_input_id" class="search_bar_input_class"

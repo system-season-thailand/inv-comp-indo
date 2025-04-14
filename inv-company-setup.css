@@ -60,67 +60,102 @@ body {
 
 
 
-#all_inv_office_insert_data_content {
-    margin: 20px;
+
+
+
+
+
+/* Invoice type container */
+#website_invoice_type_div {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    background: linear-gradient(to right, #e0f7fa, #fce4ec);
+    border-radius: 16px;
 }
 
-table {
-    border-collapse: collapse;
+/* Individual type button (p tag) */
+#website_invoice_type_div a {
+    text-decoration: none;
+    flex: 1;
+    margin: 0 10px;
+    text-align: center;
+    background: linear-gradient(145deg, #4fc3f7, #f06292);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 30px;
+    transition: transform 0.2s ease, background 0.3s ease;
+    cursor: pointer;
+}
+
+#website_invoice_type_div a:hover {
+    transform: scale(1.01);
+    background: linear-gradient(145deg, #33beff, #ff4180);
+}
+
+
+/* Main content box */
+#all_inv_office_insert_data_content {
+    margin: 30px auto;
+    width: 75%;
+    max-width: 900px;
+    padding: 30px;
+    background: linear-gradient(135deg, #f0f4c3, #e1f5fe, #fce4ec);
+    border-radius: 24px;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Heading */
+#all_inv_office_insert_data_content h1 {
+    color: #4a148c;
+    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+/* Textarea */
+#all_inv_office_insert_data_content textarea {
     width: 100%;
+    height: 160px;
+    padding: 15px;
+    font-size: 1rem;
+    font-family: 'Courier New', monospace;
+    border: 2px solid #aed581;
+    border-radius: 16px;
+    background-color: #ffffff;
+    color: #1a237e;
+    outline: none;
+    resize: none;
     margin-bottom: 20px;
 }
 
-table,
-th,
-td {
-    border: 1px solid #b2b2b2;
+#all_inv_office_insert_data_content textarea::placeholder {
+    color: #9e9e9e;
 }
 
-th,
-td {
-    padding: 8px;
-    text-align: left;
-}
-
-th {
-    background: #f2f2f2;
-}
-
-textarea {
-    width: 100%;
-    height: 150px;
-    margin-bottom: 10px;
-    padding: 15px 5px;
-    font-size: 0.9rem;
-    font-family: monospace;
-}
-
-button {
-    padding: 10px 20px;
-    background: #4CAF50;
+/* Button */
+#all_inv_office_insert_data_content button {
+    padding: 12px 28px;
+    background: linear-gradient(145deg, #4fc3f7, #f06292);
     color: white;
     border: none;
+    border-radius: 30px;
+    font-size: 1rem;
     cursor: pointer;
-    margin-right: 10px;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-#all_saved_data_div_id {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+#all_inv_office_insert_data_content button:hover {
+    background: linear-gradient(145deg, #33beff, #ff4180);
+    transform: scale(1.02);
 }
 
-#all_saved_data_div_id * {
-    margin: 10px 15px;
-    border-radius: 7px;
-    width: fit-content;
-}
 
-.saved_box {
-    border: 0.5px solid black;
-    min-width: 100vw;
-}
 
 
 
@@ -181,14 +216,14 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
-    white-space: nowrap; /* 🧠 Prevent wrapping */
+    white-space: nowrap;
 }
 
 #proforma_invoice_number_div_id p:nth-of-type(3) {
     margin-left: 10px;
 }
 
-.invoice_company_guest_info_text_div{
+.invoice_company_guest_info_text_div {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -234,13 +269,23 @@ button {
     font-size: 1.5rem;
 }
 
-#invoice_company_guest_code_div{
+#invoice_tax_guest_name_div_id {
+    display: flex;
+    justify-content: center;
+}
+
+#invoice_tax_guest_name_div_id p {
+    padding: 0 5px;
+    font-size: 1.5rem;
+}
+
+#invoice_company_guest_code_div {
     display: flex;
     align-items: center;
     width: 100%;
 }
 
-#invoice_company_guest_code_div p{
+#invoice_company_guest_code_div p {
     font-size: 1.5rem;
     padding: 0 5px;
 }
@@ -383,7 +428,7 @@ button {
 
 
 
-/* Name pdf file box */
+/* Name PDF file popup */
 #name_pdf_file_div {
     display: flex;
     flex-direction: column;
@@ -393,38 +438,56 @@ button {
     z-index: 1000;
     top: 50%;
     left: 50%;
-    box-shadow: 0 0 5px black;
-    border: 1px solid black;
-    transform: translate(-50%, -100vh);
-    background-color: #fefefe;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 95%;
-    max-width: 90%;
-    max-height: 90%;
+    transform: translate(-50%, -100vh); /* Hidden by default */
+    background: linear-gradient(135deg, #e3f2fd, #fce4ec); /* Light blue-pink blend */
+    padding: 25px;
+    width: 70%;
     overflow: auto;
-    border-radius: 8px;
-    text-align: center;
+    border-radius: 18px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     transition: transform 0.5s ease;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+    border: none;
 }
 
+/* Input field */
 #name_pdf_file_div input {
     width: 100%;
-    font-size: 2vmax;
+    font-size: 1.5rem;
     text-align: center;
-    border: 1px solid black;
-    border-radius: 3px;
-}
-
-#name_pdf_file_div button {
-    background: #4CAF50;
-    font-size: 2.5vw;
+    border: 2px solid #90caf9;
+    border-radius: 12px;
+    padding: 10px;
     margin-top: 10px;
-    padding: 1px 10px;
+    outline: none;
+    background-color: #ffffff;
+    color: #333;
+    transition: border 0.2s ease;
+}
+
+#name_pdf_file_div input:focus {
+    border-color: #64b5f6;
+}
+
+/* Confirm button */
+#name_pdf_file_div button {
+    background: linear-gradient(145deg, #4fc3f7, #f06292);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 20px;
+    padding: 10px 20px;
     cursor: pointer;
-    border-radius: 3px;
-    border: 1px solid black;
-    transition: all 0.2s ease-in-out;
+    border-radius: 25px;
+    border: none;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 10px rgba(100, 181, 246, 0.3);
+}
+
+#name_pdf_file_div button:hover {
+    background: linear-gradient(145deg, #33beff, #ff4180);
+    transform: scale(1.05);
 }
 
 
@@ -435,76 +498,71 @@ button {
 
 
 
-/* Download PDF Button - Fixed Top Left */
+
+/* Download Button - Right Side - Friendly for All */
 #export_package_pdf_div_id {
     position: fixed;
     top: 50%;
-    right: 0px;
+    right: 0;
+    transform: translateY(-50%);
     z-index: 1000;
-    /* Ensures it stays on top */
 }
 
 #export_package_pdf_div_id button {
-    background: linear-gradient(135deg, #4CAF50, #2E7D32);
-    /* Smooth gradient */
+    background: linear-gradient(145deg, #4fc3f7, #f06292);
     color: white;
+    font-size: 1.1rem;
     font-weight: bold;
-    font-size: 1rem;
-    padding: 40px 5px;
+    padding: 30px 12px;
     border: none;
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
     cursor: pointer;
-    box-shadow: -3px 0px 8px rgba(0, 0, 0, 0.5);
-    /* Shift shadow to the left */
-    transition: all 0.2s ease-in-out;
-    text-transform: uppercase;
     letter-spacing: 1px;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-/* Hover effect */
 #export_package_pdf_div_id button:hover {
-    color: black;
+    background: linear-gradient(145deg, #33beff, #ff4180);
+    transform: scale(1.02);
 }
 
 
-
-
-
-
-
-
-
-/* Download PDF Button - Fixed Top Left */
+/* Import Button - Left Side - Friendly for All */
 #import_saved_data_from_database_id {
     position: fixed;
     top: 50%;
-    left: 0px;
+    left: 0;
+    transform: translateY(-50%);
     z-index: 1000;
-    /* Ensures it stays on top */
 }
 
 #import_saved_data_from_database_id button {
-    background: linear-gradient(135deg, #4c84af, #143b58);
-    /* Smooth gradient */
+    background: linear-gradient(145deg, #4fc3f7, #f06292);
     color: white;
+    font-size: 1.1rem;
     font-weight: bold;
-    font-size: 1rem;
-    padding: 40px 5px;
+    padding: 30px 12px;
     border: none;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
     cursor: pointer;
-    box-shadow: 2px 0px 5px rgba(0, 0, 0);
-    transition: all 0.2s ease-in-out;
-    text-transform: uppercase;
     letter-spacing: 1px;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-/* Hover effect */
 #import_saved_data_from_database_id button:hover {
-    color: black;
+    background: linear-gradient(145deg, #33beff, #ff4180);
+    transform: scale(1.02);
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -537,14 +595,14 @@ button {
 
 
 
-/* Filter company names div */
+/* Main dropdown container */
 .searchable_names_dropdown_class {
     z-index: 1000;
-    background: rgb(0, 93, 163);
+    background: linear-gradient(180deg, #ffc6f2, #b2ebf2); /* Soft gray to aqua */
     width: 100%;
     min-height: 50vh;
     max-height: 50vh;
-    padding: 5px 0;
+    padding: 15px 10px;
     position: fixed;
     bottom: 0;
     display: flex;
@@ -552,7 +610,10 @@ button {
     justify-content: flex-start;
     align-items: center;
     transform: translateY(100%);
-    transition: transform 0.1s ease-in-out, height 0.1s ease-in-out;
+    transition: transform 0.3s ease-in-out;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* Visible state for the dropdown */
@@ -565,33 +626,34 @@ button {
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
-    transition: all 0.1s ease-in-out;
 }
 
 /* Search bar input */
 .search_bar_input_class {
     text-align: center;
-    /* Align text to the left */
     width: 100%;
-    font-size: 2vw;
-    padding: 10px 0;
-    border: none;
+    font-size: 1.3rem;
+    padding: 12px;
+    border: 2px solid #90caf9; /* Light blue border */
+    border-radius: 12px;
+    color: #3e3e3e;
+    background-color: #ffffff;
     outline: none;
-    border-radius: 3px;
-    transition: all 0.1s ease-in-out;
-    box-sizing: border-box;
-    /* Ensure padding and border are included in the width */
+    transition: border 0.2s ease;
 }
 
-/* To ensure the caret is visually aligned to the right of the text */
+.search_bar_input_class:focus {
+    border-color: #64b5f6;
+}
+
+/* Placeholder styling */
 .search_bar_input_class::placeholder {
-    direction: ltr;
-    /* Ensure placeholder text is also aligned correctly */
+    color: #9e9e9e;
 }
 
-/* Company name options */
+/* Company name options container */
 .company_names_options_dropdown_class {
-    background: rgb(0, 93, 163);
+    background: transparent;
     width: 100%;
     padding: 10px;
     display: flex;
@@ -602,52 +664,48 @@ button {
     box-sizing: border-box;
 }
 
-/* Style for the h3 elements */
+/* Individual name button */
 .company_names_options_dropdown_class h3 {
     background: white;
-    width: fit-content;
-    font-size: 2.5vw;
-    margin: 5px;
-    padding: 0 10px;
-    border-radius: 3px;
-    box-shadow: 0 0 0.5px 0.5px black;
+    font-size: 1.5rem;
+    margin: 8px;
+    padding: 10px 20px;
+    border-radius: 20px;
     text-align: center;
     cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    
+    /* Make it pop */
+    box-shadow: 
+        0 8px 20px rgba(0, 0, 0, 0.15),  /* Main pop shadow */
+        0 0 0 2px rgba(100, 181, 246, 0.2); /* Outline glow */
 }
 
-/* Importing and deleting data from localStorage */
-.google_sheet_dropdown_div_class h6 {
-    background: darkred;
-    color: white;
-    width: 100%;
-    font-size: 2vw;
-    text-align: center;
-    border: 0.5px solid black;
+.company_names_options_dropdown_class h3:hover {
+    background: #e3f2fd;
+    transform: translateY(-2px) scale(1.02); /* Slight lift + zoom */
+    box-shadow: 
+        0 12px 24px rgba(0, 0, 0, 0.2),
+        0 0 0 3px rgba(66, 165, 245, 0.3); /* Brighter pop on hover */
 }
 
+
+/* Paragraph options (if used) */
 .google_sheet_dropdown_div_class p {
-    background: rgb(0, 87, 116);
-    color: white;
-    font-size: 2.5vw;
-    padding: 1px 5px;
+    background: #e3f2fd;
+    color: #1a237e;
+    font-size: 1rem;
+    padding: 6px 12px;
     text-align: center;
-    border: 0.5px solid black;
-    border-radius: 3px;
+    border-radius: 12px;
     cursor: pointer;
-    align-self: flex-start;
-    margin-right: 5px;
-    transition: all 0.1s ease-in-out;
+    margin: 5px;
+    transition: all 0.2s ease-in-out;
 }
 
-.google_sheet_dropdown_div_class ion-icon {
-    background: rgb(0, 87, 116);
+.google_sheet_dropdown_div_class p:hover {
+    background: #90caf9;
     color: white;
-    font-size: 5vw;
-    padding: 1px 5px;
-    text-align: center;
-    border: 0.5px solid black;
-    border-radius: 3px;
-    cursor: pointer;
-    align-self: flex-start;
-    margin-left: 5px;
 }
+

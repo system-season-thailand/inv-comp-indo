@@ -55,10 +55,18 @@ function playSoundEffect(soundName) {
 
 
 
+
+
+
+
+
+
+
+
+/* Function to reset the value of the textarea */
 deleteTextAre = function () {
     document.getElementById("dataInput").value = '';
 }
-
 
 
 
@@ -895,7 +903,7 @@ function processInvoiceData(data) {
                 mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
                 logoElement = document.getElementById("inv_comp_logo").src = "season-logo.jpg";
 
-                
+
                 // Determine the orignal styling or the golden travel
                 if (agencyUpper.includes("GOLDEN TRAVEL")) {
                     mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
