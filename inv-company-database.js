@@ -3,7 +3,7 @@ let new_or_imported_inv_company_variable = 'new_invoice_company';
 
 
 // Your Google Apps Script Web App URL
-var googleSheetWebAppUrl = "https://script.google.com/macros/s/AKfycbyQOk1quKqE0uRPyQ0mSpX2YGdR75EqCeUcP40uMSwcQfPQqXh40UOEP5tvpeWvMLg_3w/exec";
+var googleSheetWebAppUrl = "https://script.google.com/macros/s/AKfycbwOTFpKDqVlQWslO-AvEYuHROAo4NsrAgQQ5mVoPcqxhGK4WaQYmtS-7d_eD5X0_RB30w/exec";
 
 function sendDataToGoogleSheet() {
 
@@ -134,7 +134,7 @@ let allFetchedData = [];
 
 const fetchBatch = async (startRow, numRows) => {
     try {
-        let response = await fetch(`https://script.google.com/macros/s/AKfycbyQOk1quKqE0uRPyQ0mSpX2YGdR75EqCeUcP40uMSwcQfPQqXh40UOEP5tvpeWvMLg_3w/exec?startRow=${startRow}&numRows=${numRows}`);
+        let response = await fetch(`https://script.google.com/macros/s/AKfycbwOTFpKDqVlQWslO-AvEYuHROAo4NsrAgQQ5mVoPcqxhGK4WaQYmtS-7d_eD5X0_RB30w/exec?startRow=${startRow}&numRows=${numRows}`);
         let result = await response.json();
 
         if (!result.totalRows) {
