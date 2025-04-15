@@ -878,6 +878,11 @@ function processInvoiceData(data) {
         }
 
 
+        if (agencyUpper === 'RIDA') {
+            currency = "IDR";
+        }
+
+        
 
         /* Get the elements to update them based on the company value */
         const mainDiv = document.getElementById("main_inv_company_row_id");
@@ -1768,7 +1773,7 @@ async function checkThePdfNameToDownload() {
 
 
         /* Run a function to store the data in the google sheet */
-        sendDataToGoogleSheet()
+        sendDataToGoogleSheet();
 
 
 
