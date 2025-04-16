@@ -878,11 +878,9 @@ function processInvoiceData(data) {
         }
 
 
-        if (agencyUpper === 'RIDA') {
-            currency = "IDR";
-        }
 
-        
+
+
 
         /* Get the elements to update them based on the company value */
         const mainDiv = document.getElementById("main_inv_company_row_id");
@@ -925,6 +923,15 @@ function processInvoiceData(data) {
         }
 
 
+
+        
+        /* Check if the company name is 'RIDA' to make it in IDR */
+        if (agencyUpper === 'RIDA' || agencyUpper === 'RIDA TRAVEL') {
+            currency = "IDR";
+
+            mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
+            logoElement = document.getElementById("inv_comp_logo").src = "season-logo.jpg";
+        }
 
 
 
