@@ -883,54 +883,32 @@ function processInvoiceData(data) {
 
 
         /* Get the elements to update them based on the company value */
-        const mainDiv = document.getElementById("main_inv_company_row_id");
         const top_left_inv_company_orignal_div_id = document.getElementById("top_left_inv_company_orignal_div_id");
         const top_left_inv_company_golden_div_id = document.getElementById("top_left_inv_company_golden_div_id");
         const invoice_company_golden_under_guest_name_info_div = document.getElementById("invoice_company_golden_under_guest_name_info_div");
 
 
 
-        // Update background and text color based on currency
-        if (mainDiv) {
-            if (currency === "IDR") {
-                mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
-                logoElement = document.getElementById("inv_comp_logo").src = "fanadiq-logo.jpg";
-
-            } else if (currency === "SAR" && agencyUpper === 'BOSS SAMI') {
-                mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
-                logoElement = document.getElementById("inv_comp_logo").src = "fanadiq-logo.jpg";
-            }
-
-            else {
-
-                mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
-                logoElement = document.getElementById("inv_comp_logo").src = "season-logo.jpg";
-
-
-                // Determine the orignal styling or the golden travel
-                if (agencyUpper.includes("GOLDEN TRAVEL")) {
-                    mainDiv.style.backgroundColor = "rgb(216, 228, 188)";
-                    top_left_inv_company_orignal_div_id.style.display = "none";
-                    top_left_inv_company_golden_div_id.style.display = "flex";
-                    invoice_company_golden_under_guest_name_info_div.style.display = "block";
-                } else {
-                    mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
-                    top_left_inv_company_orignal_div_id.style.display = "flex";
-                    top_left_inv_company_golden_div_id.style.display = "none";
-                    invoice_company_golden_under_guest_name_info_div.style.display = "none";
-                }
-            }
+        // Determine the orignal styling or the golden travel
+        if (agencyUpper.includes("GOLDEN TRAVEL")) {
+            top_left_inv_company_orignal_div_id.style.display = "none";
+            top_left_inv_company_golden_div_id.style.display = "flex";
+            invoice_company_golden_under_guest_name_info_div.style.display = "block";
+        } else {
+            top_left_inv_company_orignal_div_id.style.display = "flex";
+            top_left_inv_company_golden_div_id.style.display = "none";
+            invoice_company_golden_under_guest_name_info_div.style.display = "none";
         }
 
 
 
-        
+
+
+
         /* Check if the company name is 'RIDA' to make it in IDR */
         if (agencyUpper === 'RIDA' || agencyUpper === 'RIDA TRAVEL') {
             currency = "IDR";
 
-            mainDiv.style.backgroundColor = "rgb(133, 161, 169)";
-            logoElement = document.getElementById("inv_comp_logo").src = "season-logo.jpg";
         }
 
 
@@ -1780,7 +1758,7 @@ async function checkThePdfNameToDownload() {
 
 
         /* Run a function to store the data in the google sheet */
-        sendDataToGoogleSheet();
+        /* sendDataToGoogleSheet(); */
 
 
 
@@ -1811,43 +1789,84 @@ async function checkThePdfNameToDownload() {
 
 
 
-        // Capture the div by ID
         const element = document.getElementById("whole_invoice_company_section_id");
+        const fileName = document.getElementById("pdf_file_name_input_id").value || "invoice";
 
-        html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-        }).then(canvas => {
-            const imgData = canvas.toDataURL("image/jpeg", 0.95);
-
-            const imgWidthPx = canvas.width;
-            const imgHeightPx = canvas.height;
-
-            const pdfWidthMm = 210;      // A4 width
-            const a4HeightMm = 297;      // A4 height
-            const bottomPaddingMm = 10;  // Padding for tall content
-
-            const pxPerMm = imgWidthPx / pdfWidthMm;
-            const contentHeightMm = imgHeightPx / pxPerMm;
-
-            // Add bottom padding only if height exceeds standard A4 height
-            const pdfHeightMm = contentHeightMm > a4HeightMm
-                ? contentHeightMm + bottomPaddingMm
-                : a4HeightMm;
-
-            const pdf = new jspdf.jsPDF({
-                orientation: "portrait",
-                unit: "mm",
-                format: [pdfWidthMm, pdfHeightMm]
-            });
-
-            // Position image at top-left, scaled to full width
-            pdf.addImage(imgData, "JPEG", 0, 0, pdfWidthMm, contentHeightMm);
-
-            const fileName = document.getElementById('pdf_file_name_input_id').value || "invoice";
-            pdf.save(`${fileName}.pdf`);
+        // Create A4-sized PDF (210mm x 297mm)
+        const pdf = new jspdf.jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4"
         });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();  // 210mm (A4 width)
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm (A4 height)
+
+        // Temporarily measure the original size of the element
+        const clone = element.cloneNode(true);
+        clone.style.position = "absolute";
+        clone.style.left = "-9999px";
+        clone.style.top = "0";
+        document.body.appendChild(clone);
+
+        // Get the original size in pixels
+        const originalWidth = clone.scrollWidth;
+        const originalHeight = clone.scrollHeight;
+
+        // Clean up the clone after measuring
+        document.body.removeChild(clone);
+
+        // Convert PDF mm to pixels (96dpi)
+        const pxPerMm = 96 / 25.4;
+        const maxPdfWidthPx = pdfWidth * pxPerMm;
+        const maxPdfHeightPx = pdfHeight * pxPerMm;
+
+        // Determine the scale factor for both width and height
+        const scaleX = maxPdfWidthPx / originalWidth;
+        const scaleY = maxPdfHeightPx / originalHeight;
+
+        // Use the smaller scale factor to ensure it fits both width and height
+        const scale = Math.min(scaleX, scaleY);
+
+        // Apply the scale and render the content to the PDF
+        const scaledWidth = originalWidth * scale;
+        const scaledHeight = originalHeight * scale;
+
+        // If the scaled content still overflows, scale further
+        if (scaledHeight > pdfHeight || scaledWidth > pdfWidth) {
+            // Adjust further to fit the content within the page
+            const finalScale = Math.min(pdfWidth / originalWidth, pdfHeight / originalHeight);
+
+            pdf.html(element, {
+                callback: function (pdf) {
+                    pdf.save(`${fileName}.pdf`);
+                },
+                x: 0,
+                y: 0,
+                html2canvas: {
+                    scale: finalScale,  // Apply the further adjusted scale
+                    useCORS: true,
+                    logging: false
+                },
+                width: pdfWidth // Force content width to match the PDF width
+            });
+        } else {
+            // If the scaled content fits within the page, use the initial scale
+            pdf.html(element, {
+                callback: function (pdf) {
+                    pdf.save(`${fileName}.pdf`);
+                },
+                x: 0,
+                y: 0,
+                html2canvas: {
+                    scale: scale,  // Apply the initial scale for content that fits
+                    useCORS: true,
+                    logging: false
+                },
+                width: pdfWidth // Force content width to match the PDF width
+            });
+        }
+
 
 
 
