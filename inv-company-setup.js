@@ -1587,7 +1587,6 @@ function setupDuplicateOptions(targetClass, parentClass) {
 
 
 
-
 // Praper the overlay layer variable
 let overlayLayer = null;
 
@@ -1759,6 +1758,10 @@ async function checkThePdfNameToDownload() {
 
         /* Run a function to store the data in the google sheet */
         sendDataToGoogleSheet();
+
+
+        /* Run a function to store the data in the supabase */
+        sendDataToSupabase();
 
 
 

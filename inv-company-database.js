@@ -7,7 +7,6 @@ var googleSheetWebAppUrl = "https://script.google.com/macros/s/AKfycbwOTFpKDqVlQ
 
 function sendDataToGoogleSheet() {
 
-
     /* Get the Roman month name and the year of the inv company and store them in the google sheet for later use (when importing) */
     const fileName = document.getElementById('pdf_file_name_input_id').value;
 
@@ -82,6 +81,143 @@ function sendDataToGoogleSheet() {
         })
         .catch(error => console.error("Error:", error));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Code to store the data in the SupaBase */
+const supabaseUrl = 'https://xfymcmuozheulfffqyhv.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmeW1jbXVvemhldWxmZmZxeWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUxNzMxODAsImV4cCI6MjA2MDc0OTE4MH0.BZhVN-03eLQTumyGp9LKqvV4yTuxuHaN8QA_7MC2dEo';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+async function sendDataToSupabase() {
+    console.log('➡️ sendDataToSupabase function started');
+
+    const fileName = document.getElementById('pdf_file_name_input_id').value;
+    const parts = fileName.split(' ');
+    let extractedMonth = null;
+    let extractedYear = null;
+
+    for (const part of parts) {
+        let segments = part.includes('_') ? part.split('_') : part.split('-');
+        if (segments.length >= 3) {
+            extractedMonth = segments[1];
+            extractedYear = segments[2];
+        }
+    }
+
+    console.log(`📅 Extracted Month: ${extractedMonth}, Year: ${extractedYear}`);
+
+    document.getElementById('store_google_sheet_inv_orignal_month_value').innerText = extractedMonth;
+    document.getElementById('store_google_sheet_inv_orignal_year_value').innerText = extractedYear;
+
+    const invNumber = document.getElementById("current_used_inv_number_span_id")?.innerText.trim() || "";
+    const guestName = document.getElementById("current_used_guest_name_p_id").innerText.trim().replace(/[()]/g, '').trim() || "";
+    const revNumber = document.getElementById("current_used_rev_number_span_id")?.innerText.trim() || "";
+
+    const formattedName = revNumber === '' ? `${invNumber} ${guestName}` : `${invNumber}-${revNumber} ${guestName}`;
+    console.log(`🧾 Formatted Name: ${formattedName}`);
+
+    const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
+
+
+    /* Get the user current month na dyear to store it in the supabase for later use when deleteing data */
+    const currentDate = new Date();
+
+    const inv_company_created_date_options = { month: 'long', year: 'numeric' };
+    const currentUserDate = currentDate.toLocaleString('en-US', inv_company_created_date_options);
+
+
+    const inv_company_current_user_date_options = {
+        weekday: 'long',     // Optional: "Monday", "Tuesday", etc.
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true         // Use false if you prefer 24-hour format
+    };
+    const currentUserFullDate = currentDate.toLocaleString('en-US', inv_company_current_user_date_options);
+
+
+
+
+    try {
+        const { data: existingRows, error: fetchError } = await supabase
+            .from('inv_comp_indo')
+            .select('name')
+            .eq('name', formattedName);
+
+        const existing = existingRows && existingRows.length > 0 ? existingRows[0] : null;
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error("❌ Error checking existing:", fetchError);
+            return;
+        }
+
+        if (existing) {
+            console.log('🟡 Existing invoice found, updating HTML content only...');
+            const { data, error } = await supabase
+                .from('inv_comp_indo')
+                .update({ inv_company_indo_content: htmlContent })
+                .eq('name', formattedName)
+                .select(); // optional: to return the updated row
+
+            if (error) console.error("❌ Update failed:", error);
+            else console.log("✅ Updated invoice content only:", data[0]);
+        } else {
+            console.log('🟢 No existing invoice, inserting new...');
+            const { data, error } = await supabase
+                .from('inv_comp_indo')
+                .insert([{
+                    name: formattedName,
+                    inv_company_indo_content: htmlContent,
+                    inv_company_created_date: currentUserDate,
+                    inv_company_user_current_date: currentUserFullDate
+                }])
+                .select();
+        
+            if (error) console.error("❌ Insert failed:", error);
+            else console.log("✅ Inserted new invoice:", data[0]);
+        }
+        
+
+
+        // Disable the button while processing
+        const button = document.getElementById('check_pdf_name_button');
+        button.style.pointerEvents = 'auto';
+        button.innerText = 'Download';
+
+    } catch (error) {
+        console.error("🔥 Unexpected error:", error);
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
 // Function to clean HTML by removing unnecessary attributes and tags
