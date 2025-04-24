@@ -91,11 +91,11 @@ async function sendDataToSupabase() {
                     inv_company_user_current_date: currentUserFullDate
                 }])
                 .select();
-        
+
             if (error) console.error("❌ Insert failed:", error);
             else console.log("✅ Inserted new invoice:", data[0]);
         }
-        
+
 
 
         // Disable the button while processing
@@ -219,10 +219,10 @@ const loadAllData = async () => {
     if (batchHTMLElements.length === 0) {
         console.warn("⚠️ No unique entries found to display.");
     } else {
-        batchHTMLElements.forEach(el => {
+        // Reverse the order before appending
+        batchHTMLElements.reverse().forEach(el => {
             container.appendChild(el);
         });
-        console.log(`✅ Appended ${batchHTMLElements.length} h3 elements to container`);
     }
 
     // Optional: trigger input filter if any
