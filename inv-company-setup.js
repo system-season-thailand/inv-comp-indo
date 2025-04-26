@@ -891,13 +891,23 @@ function processInvoiceData(data) {
 
         // Determine the orignal styling or the golden travel
         if (agencyUpper.includes("GOLDEN TRAVEL")) {
-            top_left_inv_company_orignal_div_id.style.display = "none";
-            top_left_inv_company_golden_div_id.style.display = "flex";
-            invoice_company_golden_under_guest_name_info_div.style.display = "block";
+
+            /* in 2026 delete the following if condition (I used it tp avoid error in old inv) */
+            if (top_left_inv_company_orignal_div_id) {
+
+                top_left_inv_company_orignal_div_id.style.display = "none";
+                top_left_inv_company_golden_div_id.style.display = "flex";
+                invoice_company_golden_under_guest_name_info_div.style.display = "block";
+            }
         } else {
-            top_left_inv_company_orignal_div_id.style.display = "flex";
-            top_left_inv_company_golden_div_id.style.display = "none";
-            invoice_company_golden_under_guest_name_info_div.style.display = "none";
+
+            /* in 2026 delete the following if condition (I used it tp avoid error in old inv) */
+            if (top_left_inv_company_orignal_div_id) {
+
+                top_left_inv_company_orignal_div_id.style.display = "flex";
+                top_left_inv_company_golden_div_id.style.display = "none";
+                invoice_company_golden_under_guest_name_info_div.style.display = "none";
+            }
         }
 
 
@@ -927,17 +937,33 @@ function processInvoiceData(data) {
         const paymentDetails3 = document.getElementById("payment_details_3");
 
         if (currency === "SAR") {
-            paymentDetails1.style.display = "block";
-            paymentDetails2.style.display = "none";
-            paymentDetails3.style.display = "none";
+
+            /* in 2026 delete the following if condition (I used it tp avoid error in old inv) */
+            if (paymentDetails3) {
+
+                paymentDetails1.style.display = "block";
+                paymentDetails2.style.display = "none";
+                paymentDetails3.style.display = "none";
+            }
+
         } else if (currency === "USD") {
-            paymentDetails1.style.display = "none";
-            paymentDetails2.style.display = "block";
-            paymentDetails3.style.display = "none";
+
+            /* in 2026 delete the following if condition (I used it tp avoid error in old inv) */
+            if (paymentDetails3) {
+                paymentDetails1.style.display = "none";
+                paymentDetails2.style.display = "block";
+                paymentDetails3.style.display = "none";
+            }
+
         } else {
-            paymentDetails1.style.display = "none";
-            paymentDetails2.style.display = "none";
-            paymentDetails3.style.display = "block";
+
+            /* in 2026 delete the following if condition (I used it tp avoid error in old inv) */
+            if (paymentDetails3) {
+                paymentDetails1.style.display = "none";
+                paymentDetails2.style.display = "none";
+                paymentDetails3.style.display = "block";
+            }
+
         }
 
 
