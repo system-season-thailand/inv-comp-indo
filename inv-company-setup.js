@@ -279,6 +279,8 @@ function processInvoiceData(data) {
         finalTravelAgency = "SECRET";
     } else if (agencyUpper.includes("TURKI") || guestByUpper.includes("TURKI")) {
         finalTravelAgency = "MR. TURKI";
+    } else if (agencyUpper.includes("TURKEY") || guestByUpper.includes("TURKEY")) {
+        finalTravelAgency = "MR. TURKEY";
     } else if (agencyUpper.includes("TARIQ") || guestByUpper.includes("TARIQ")) {
         finalTravelAgency = "MR. TARIQ";
     } else if (agencyUpper.includes("SAMI") || guestByUpper.includes("SAMI")) {
@@ -876,9 +878,9 @@ function processInvoiceData(data) {
         let currency = "SAR"; // Default currency
         if (agencyUpper.includes("AL EZZ")) {
             currency = "USD";
-        } else if (guestByUpper.includes("RAYAN") || guestByUpper.includes("TURKI") || guestByUpper.includes("TARIQ") || guestByUpper.includes("SECRET") || guestByUpper.includes("TURKY")) {
+        } else if (guestByUpper.includes("RAYAN") || guestByUpper.includes("TURKI") || guestByUpper.includes("TURKEY") || guestByUpper.includes("TARIQ") || guestByUpper.includes("SECRET") || guestByUpper.includes("TURKY")) {
             currency = "IDR";
-        } else if (agencyUpper.includes("RAYAN") || agencyUpper.includes("TURKI") || agencyUpper.includes("TARIQ") || agencyUpper.includes("SECRET") || agencyUpper.includes("TURKY")) {
+        } else if (agencyUpper.includes("RAYAN") || agencyUpper.includes("TURKI") || agencyUpper.includes("TURKEY") || agencyUpper.includes("TARIQ") || agencyUpper.includes("SECRET") || agencyUpper.includes("TURKY")) {
             currency = "IDR";
         }
 
