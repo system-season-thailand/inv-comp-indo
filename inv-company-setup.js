@@ -269,20 +269,21 @@ function processInvoiceData(data) {
 
 
 
-    let travelAgencyUpper = travelAgency.toUpperCase();
+    let agencyUpper = travelAgency.toUpperCase();
+    let guestByUpper = (guestBy || "").toUpperCase();
     let finalTravelAgency;
 
-    if (travelAgencyUpper.includes("RAYAN")) {
+    if (agencyUpper.includes("RAYAN") || guestByUpper.includes("RAYAN")) {
         finalTravelAgency = "MR. RAYAN";
-    } else if (travelAgencyUpper.includes("SECRET")) {
+    } else if (agencyUpper.includes("SECRET") || guestByUpper.includes("SECRET")) {
         finalTravelAgency = "SECRET";
-    } else if (travelAgencyUpper.includes("TURKI")) {
+    } else if (agencyUpper.includes("TURKI") || guestByUpper.includes("TURKI")) {
         finalTravelAgency = "MR. TURKI";
-    } else if (travelAgencyUpper.includes("TARIQ")) {
+    } else if (agencyUpper.includes("TARIQ") || guestByUpper.includes("TARIQ")) {
         finalTravelAgency = "MR. TARIQ";
-    } else if (travelAgencyUpper.includes("SAMI")) {
+    } else if (agencyUpper.includes("SAMI") || guestByUpper.includes("SAMI")) {
         finalTravelAgency = "BOSS SAMI";
-    } else if (travelAgencyUpper.includes("SYABAB")) {
+    } else if (agencyUpper.includes("SYABAB") || guestByUpper.includes("SYABAB")) {
         finalTravelAgency = "MR. RAYAN";
     } else {
         finalTravelAgency = travelAgency;
@@ -442,17 +443,21 @@ function processInvoiceData(data) {
 
                 const nights = parseInt(cols[6]?.trim() || "0", 10); // "No of Nights" column
 
+                const upperHotel = hotel.toUpperCase();
+
+                const accommodationOnlyHotels = ["AL JUMEIRAH", "MARSEILLIA", "AL ANDALUS", "NEOM"];
+
+                const details = accommodationOnlyHotels.some(name => upperHotel.includes(name))
+                    ? "Accommodation Only"
+                    : "Including Breakfast";
+
                 hotels.push({
                     hotel,
                     hotelLocation,
                     roomType,
                     startDate,
                     endDate,
-                    details: (hotel.toUpperCase() === "AL JUMEIRAH RESORT & VILLAS" ||
-                        hotel.toUpperCase() === "MARSEILLIA HILLS PUNCAK" ||
-                        hotel.toUpperCase() === "AL ANDALUS RESORT PUNCAK" || hotel.toUpperCase() === "NEOM VILLA")
-                        ? "Accommodation Only"
-                        : "Including Breakfast",
+                    details,
                     nights,
                     unitAmount,
                 });
