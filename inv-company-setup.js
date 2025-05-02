@@ -383,8 +383,8 @@ function processInvoiceData(data) {
             // Check if any column contains "TICKET"
             if (cols.some(col => /TICK/i.test(col))) {
 
-                const startDate = cols[3]?.trim();
-                const endDate = cols[4]?.trim();
+                const startDate = cols[4]?.trim();
+                const endDate = cols[5]?.trim();
                 const quantity = cols[7]?.trim();
 
                 flights = {
@@ -648,8 +648,13 @@ function processInvoiceData(data) {
             }
         }
 
+        // If no flight out of Bangkok is found, return N/A
+        if (!firstFlightDate && lastFlightDate) {
+            const [day, month, year] = lastFlightDate.split(" ");
+            return `${day} ${month} ${year}`;
+        }
         if (!firstFlightDate) {
-            return "N/A"; // No valid flight period
+            return "N/A";
         }
 
         const [firstDay, firstMonth, firstYear] = firstFlightDate.split(" ");
@@ -701,6 +706,40 @@ function processInvoiceData(data) {
         return flightDestinations.join("<br>");
     };
 
+    const parseIndoMonthToEnglish = (month) => {
+        const monthMap = {
+            "Januari": "January",
+            "Februari": "February",
+            "Maret": "March",
+            "April": "April",
+            "Mei": "May",
+            "Juni": "June",
+            "Juli": "July",
+            "Agustus": "August",
+            "September": "September",
+            "Oktober": "October",
+            "November": "November",
+            "Desember": "December"
+        };
+        return monthMap[month] || month;
+    };
+
+    const formatDateRange = (start, end, fallbackYear = "2025") => {
+        if (!start || !end) return "N/A";
+
+        const [startDay, startMonthIndo] = start.split(" ");
+        const [endDay, endMonthIndo] = end.split(" ");
+
+        const startMonth = parseIndoMonthToEnglish(startMonthIndo);
+        const endMonth = parseIndoMonthToEnglish(endMonthIndo || startMonthIndo);
+
+        if (startMonth === endMonth) {
+            return `${startDay} - ${endDay} ${startMonth} ${fallbackYear}`;
+        } else {
+            return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${fallbackYear}`;
+        }
+    };
+
     const createFlightRow = (data) => {
         if (!data) return;
 
@@ -708,12 +747,25 @@ function processInvoiceData(data) {
         flightDiv.id = "flight_tickets_row_div_id";
 
         // Generate the flight dates dynamically
-        const flightDates = getFlightDates();
+        let flightDates = getFlightDates();
+
+        // If dynamic dates are "N/A", use startDate and endDate from `data`
+        if (flightDates === "N/A" && data.startDate && data.endDate) {
+            flightDates = formatDateRange(data.startDate, data.endDate);
+            console.log(data.startDate, data.endDate)
+        }
+
+
+        let getFlightDestinationText = getFlightDestination();
+        if (getFlightDestinationText === ''){
+            getFlightDestinationText = '<span class="flight_destination_text_options_class red_text_color_class">N/A</span>'
+        }
+
+
 
         const rowDiv = document.createElement("div");
         rowDiv.className = "invoice_company_row_div_class";
 
-        // Add all flight dates as <p> elements
         rowDiv.innerHTML = `
             <div>
                 <p contenteditable="true">${flightDates}</p>
@@ -722,7 +774,7 @@ function processInvoiceData(data) {
                 <p class="duplicate_this_element_class" contenteditable="true" style="padding: 25px 0">Domestic Flight Tickets</p>
             </div>
             <div>
-                <p class="flight_destination_text_options_class" contenteditable="true">${getFlightDestination()}</p>
+                <p contenteditable="true">${getFlightDestinationText}</p>
             </div>
             <div style="border-right: 0.5px solid black;">
                 <p class="red_text_color_class flight_amount_text_options_class" contenteditable="true">${data.quantity} Person</p>  
@@ -731,6 +783,7 @@ function processInvoiceData(data) {
         flightDiv.appendChild(rowDiv);
         document.getElementById("invoice_company_main_table_div_id").appendChild(flightDiv);
     };
+
 
 
 
