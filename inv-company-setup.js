@@ -1031,7 +1031,7 @@ function processInvoiceData(data) {
         rowDiv.className = "invoice_company_row_div_class last_invoice_company_row_div_class";
         rowDiv.innerHTML = `
             <div>
-                <p class="duplicate_this_element_class">Total</p>
+                <p class="duplicate_this_element_class">TOTAL</p>
             </div>
             <div style="border-right: 0.5px solid black;">
                 <p style="padding: 5px 0">${currency}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${formattedTotal}</p>
