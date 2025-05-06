@@ -469,6 +469,7 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
 
 
 
+        /* Make the value of the 'new_or_imported_inv_company_variable' to tell the system we're editing now */
         new_or_imported_inv_company_variable = 'imported_inv_company';
 
     } else {

@@ -23,22 +23,37 @@
 
 
 
+    <div class="invoice_company_row_div_class">
 
+        <div>
+            <p class="hotel_check_in_out_date_class">${Invoice Number}</p>
+        </div>
+        <div style="padding: 20px 0">
+            <p class="duplicate_this_element_class">${Guest Name}</p>
+            <p class="duplicate_this_element_class">first date - last date (year)</p>
+        </div>
+        <div>
+            <p class="hotel_location_value_class location_text_options_class">first date - last date (year)</p>
+        </div>
+        <div style="border-right: 0.5px solid black;">
+            <p>${all cities locations found}</p>
+        </div>
 
+    </div>
 
 
 
 
     <div id="all_inv_office_insert_data_content">
         <h1>
-            Dynamic INV Company Data 
+            Dynamic INV Company Data
             <span id="highlighted_country_text">INDONESIA</span>
         </h1>
-    
+
         <textarea id="dataInput" placeholder="Paste your data here"></textarea>
         <button onclick="playSoundEffect('click'); deleteTextAre()">Reset</button>
     </div>
-    
+
 
 
 
@@ -366,8 +381,7 @@
     </div>
 
     <div id="import_saved_data_from_database_id">
-        <button
-            onclick="showOverlay('import_google_sheet_data_names_dropdown')">Import</button>
+        <button onclick="showOverlay('import_google_sheet_data_names_dropdown')">Import</button>
     </div>
 
 
@@ -398,7 +412,7 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-    
+
 
     <!-- Download PDF Link -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

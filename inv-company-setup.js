@@ -343,7 +343,57 @@ function processInvoiceData(data) {
     };
 
 
-    const extractData = (lines) => {
+
+
+
+
+
+
+    /* Function to delete any break-line inserted inn the copied excel data */
+    const normalizeExcelText = (rawText) => {
+        const lines = rawText.split('\n');
+        const normalizedLines = [];
+
+        let buffer = '';
+        let inQuotedCell = false;
+
+        for (let line of lines) {
+            const quoteCount = (line.match(/"/g) || []).length;
+
+            if (!inQuotedCell) {
+                if (quoteCount % 2 === 1) {
+                    buffer = line;
+                    inQuotedCell = true;
+                } else {
+                    normalizedLines.push(line);
+                }
+            } else {
+                buffer += ' ' + line;
+                if (quoteCount % 2 === 1) {
+                    normalizedLines.push(buffer);
+                    buffer = '';
+                    inQuotedCell = false;
+                }
+            }
+        }
+
+        if (buffer.trim()) {
+            normalizedLines.push(buffer);
+        }
+
+        // ✨ Clean up each line: remove outer quotes from quoted fields
+        return normalizedLines.map(line =>
+            line.replace(/"([^"]*)"/g, (_, inner) => inner.trim())
+        );
+    };
+
+
+
+
+
+
+    const extractData = (rawText) => {
+        const lines = normalizeExcelText(rawText);
         const hotels = [];
         let flights = null;
         let transport = null;
@@ -518,8 +568,10 @@ function processInvoiceData(data) {
 
 
 
-    const lines = data.split("\n").map(line => line.trim()).filter(line => line);
-    const { hotels, flights, transport, visa, total } = extractData(lines);
+    /* Pass all filtered text to a function to extract the data */
+    const { hotels, flights, transport, visa, total } = extractData(data);
+
+
 
     document.getElementById("invoice_company_main_table_div_id").innerHTML = "";
 
@@ -757,7 +809,7 @@ function processInvoiceData(data) {
 
 
         let getFlightDestinationText = getFlightDestination();
-        if (getFlightDestinationText === ''){
+        if (getFlightDestinationText === '') {
             getFlightDestinationText = '<span class="flight_destination_text_options_class red_text_color_class">N/A</span>'
         }
 
