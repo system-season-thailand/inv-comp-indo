@@ -132,6 +132,20 @@ async function sendDataToSupabase() {
     const formattedName = revNumber === '' ? `${invNumber} ${guestName}` : `${invNumber}-${revNumber} ${guestName}`;
     console.log(`🧾 Formatted Name: ${formattedName}`);
 
+
+
+
+    /* Increase the number of the rev in case there was a value in the rev element */
+    if (document.getElementById("current_used_rev_number_span_id").innerText.includes('R')) {
+        /* Set Rev in the inv number */
+        let revNumValue = document.getElementById("store_google_sheet_current_inv_company_rev_number_id");
+        const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
+        revNumValue.innerText = `${currentStoredRev + 1}`;
+    }
+
+
+
+
     const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
 
 
@@ -191,11 +205,11 @@ async function sendDataToSupabase() {
                     inv_company_user_current_date: currentUserFullDate
                 }])
                 .select();
-        
+
             if (error) console.error("❌ Insert failed:", error);
             else console.log("✅ Inserted new invoice:", data[0]);
         }
-        
+
 
 
         // Disable the button while processing
@@ -441,30 +455,9 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
 
 
         /* Set Rev in the inv number */
-        const invNumElement = document.querySelector("#current_used_inv_number_span_id");
         let revNumElement = document.querySelector("#current_used_rev_number_span_id");
-        let revNumValue = document.querySelector("#store_google_sheet_current_inv_company_rev_number_id");
 
-
-        if (!revNumElement) {
-            // Create the element since it doesn't exist
-            revNumElement = document.createElement("p");
-            revNumElement.id = "current_used_rev_number_span_id";
-            revNumElement.classList.add("bold_text");
-
-            // Insert it after the inv number element
-            invNumElement.parentNode.insertBefore(revNumElement, invNumElement.nextSibling);
-        }
-
-
-        // Increment the rev number stored in the hidden element
-        if (revNumValue) {
-            const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
-            revNumValue.innerText = `${currentStoredRev + 1}`;
-        }
-
-        // Set the text
-        revNumElement.innerText = `Rev${revNumValue.innerText}`;
+        revNumElement.innerText = `Rev${document.getElementById("store_google_sheet_current_inv_company_rev_number_id").innerText}`;
 
 
 

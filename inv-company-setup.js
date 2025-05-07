@@ -265,7 +265,7 @@ function processInvoiceData(data) {
     // Extract guestBy excluding parentheses content
     const guestByRow = guestBy.replace(/\s*\(.*?\)\s*/g, "").trim();
 
-    
+
 
     // Always format invoice number to 4 digits with leading zeros
     const formattedInvoiceNo = invoiceNo.padStart(4, "0");
@@ -1898,12 +1898,13 @@ async function checkThePdfNameToDownload() {
         playSoundEffect('success');
 
 
+        /* Run a function to store the data in the supabase */
+        sendDataToSupabase();
+
+
         /* Run a function to store the data in the google sheet */
         sendDataToGoogleSheet();
 
-
-        /* Run a function to store the data in the supabase */
-        sendDataToSupabase();
 
 
 
