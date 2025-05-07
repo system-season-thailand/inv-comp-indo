@@ -262,6 +262,10 @@ function processInvoiceData(data) {
     // Try to extract travel agency from parentheses, fallback to guestBy if not found
     const travelAgency = guestBy.match(/\(([^)]+)\)/)?.[1] || guestBy;
 
+    // Extract guestBy excluding parentheses content
+    const guestByRow = guestBy.replace(/\s*\(.*?\)\s*/g, "").trim();
+
+    
 
     // Always format invoice number to 4 digits with leading zeros
     const formattedInvoiceNo = invoiceNo.padStart(4, "0");
@@ -971,13 +975,13 @@ function processInvoiceData(data) {
 
 
 
-    const createTotalPriceRow = (total, travelAgency, guestBy) => {
+    const createTotalPriceRow = (total, travelAgency, guestByRow) => {
         const totalDiv = document.createElement("div");
         totalDiv.id = "total_price_row_div_id";
 
         // Convert values to uppercase for case-insensitive comparison
         const agencyUpper = (travelAgency || "").toUpperCase();
-        const guestByUpper = (guestBy || "").toUpperCase();
+        const guestByUpper = (guestByRow || "").toUpperCase();
 
         // Determine the currency
         let currency = "SAR"; // Default currency
@@ -1100,7 +1104,7 @@ function processInvoiceData(data) {
     if (flights) createFlightRow(flights);
     if (transport) createTransportationRow(transport);
     if (visa) createVisaRow(visa);
-    if (total) createTotalPriceRow(total, travelAgency, guestBy);
+    if (total) createTotalPriceRow(total, travelAgency, guestByRow);
 
 
 
