@@ -457,6 +457,16 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
         /* Set Rev in the inv number */
         let revNumElement = document.querySelector("#current_used_rev_number_span_id");
 
+        /* in 7 May 2026 delete the whole following if (I used it to avoid error in old packages with 0 values in rev number) */
+        if (document.getElementById("store_google_sheet_current_inv_company_rev_number_id").innerText === '0') {
+            /* Set Rev in the inv number */
+            let revNumValue = document.getElementById("store_google_sheet_current_inv_company_rev_number_id");
+            const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
+            revNumValue.innerText = `${currentStoredRev + 1}`;
+        }
+
+
+        /* Set the rev values in the element */
         revNumElement.innerText = `Rev${document.getElementById("store_google_sheet_current_inv_company_rev_number_id").innerText}`;
 
 
