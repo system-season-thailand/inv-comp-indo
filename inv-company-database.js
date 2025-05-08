@@ -100,8 +100,8 @@ function sendDataToGoogleSheet() {
 
 
 /* Code to store the data in the SupaBase */
-const supabaseUrl = 'https://xfymcmuozheulfffqyhv.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmeW1jbXVvemhldWxmZmZxeWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUxNzMxODAsImV4cCI6MjA2MDc0OTE4MH0.BZhVN-03eLQTumyGp9LKqvV4yTuxuHaN8QA_7MC2dEo';
+const supabaseUrl = 'https://bdisyvjhbipknpxvyctb.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkaXN5dmpoYmlwa25weHZ5Y3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MTIyMzksImV4cCI6MjA2MjI4ODIzOX0.x3aLzQPaaMIUo4MDyPSeCPnG33LVEhtFhGvhY3SkdrQ';
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 async function sendDataToSupabase() {
