@@ -149,11 +149,12 @@ async function sendDataToSupabase() {
     const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
 
 
-    /* Get the user current month na dyear to store it in the supabase for later use when deleteing data */
-    const currentDate = new Date();
 
-    const inv_company_created_date_options = { month: 'long', year: 'numeric' };
-    const currentUserDate = currentDate.toLocaleString('en-US', inv_company_created_date_options);
+
+    /* Get the found month in the inv company data */
+    const lastFoundMonthName = printLatestFullMonthName();
+
+
 
 
     const inv_company_current_user_date_options = {
@@ -201,7 +202,7 @@ async function sendDataToSupabase() {
                 .insert([{
                     name: formattedName,
                     inv_company_indo_content: htmlContent,
-                    inv_company_created_date: currentUserDate,
+                    inv_company_last_found_month_name: lastFoundMonthName,
                     inv_company_user_current_date: currentUserFullDate
                 }])
                 .select();
@@ -220,7 +221,6 @@ async function sendDataToSupabase() {
     } catch (error) {
         console.error("🔥 Unexpected error:", error);
     }
-
 }
 
 

@@ -421,14 +421,14 @@ function processInvoiceData(data) {
 
 
             // Regex to find SAR, USD, or IDR followed by a number
-            const match = lastLine.match(/(SAR|USD|IDR|RP)\s*([\d,]+)/i);
+            const match = lastLine.match(/(SAR|USD|IDR|RP)\s*([\d.,]+)/i);
 
 
 
 
 
             if (match) {
-                total = match[2].replace(/,/g, '').trim(); // Remove commas and trim
+                total = match[2].replace(/[.,]/g, '').trim(); // Remove commas and points and trim
             }
 
 
@@ -2025,3 +2025,71 @@ async function checkThePdfNameToDownload() {
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const printLatestFullMonthName = () => {
+    const div = document.getElementById("invoice_company_main_table_div_id");
+    if (!div) {
+        console.warn("Div not found");
+        return;
+    }
+
+    const text = div.innerText;
+
+    const monthReplacements = {
+        "Jan": "January", "Feb": "February", "Mar": "March", "Apr": "April",
+        "Mei": "May", "May": "May", "Jun": "June", "Jul": "July",
+        "Agu": "August", "Aug": "August", "Sep": "September", "Okt": "October",
+        "Oct": "October", "Nov": "November", "Des": "December", "Dec": "December"
+    };
+
+    const englishMonthOrder = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    let lastFoundMonthName = null;
+    const foundMonths = [];
+
+    const monthPattern = new RegExp(Object.keys(monthReplacements).join("|"), "g");
+    const matches = text.match(monthPattern);
+
+    if (matches) {
+        matches.forEach(month => {
+            const fullMonth = monthReplacements[month];
+            if (fullMonth && !foundMonths.includes(fullMonth)) {
+                foundMonths.push(fullMonth);
+            }
+        });
+
+        if (foundMonths.length > 0) {
+            foundMonths.sort((a, b) => englishMonthOrder.indexOf(a) - englishMonthOrder.indexOf(b));
+            lastFoundMonthName = foundMonths[foundMonths.length - 1];
+            console.log("Latest Month:", lastFoundMonthName);
+        }
+    }
+
+    // If needed elsewhere, you can return it
+    return lastFoundMonthName;
+};
+
+
