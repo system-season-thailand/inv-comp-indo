@@ -135,13 +135,7 @@ async function sendDataToSupabase() {
 
 
 
-    /* Increase the number of the rev in case there was a value in the rev element */
-    if (document.getElementById("current_used_rev_number_span_id").innerText.includes('R')) {
-        /* Set Rev in the inv number */
-        let revNumValue = document.getElementById("store_google_sheet_current_inv_company_rev_number_id");
-        const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
-        revNumValue.innerText = `${currentStoredRev + 1}`;
-    }
+
 
 
 
@@ -156,6 +150,9 @@ async function sendDataToSupabase() {
 
 
 
+
+    /* Get the user current month na dyear to store it in the supabase for later use when deleteing data */
+    const currentDate = new Date();
 
     const inv_company_current_user_date_options = {
         weekday: 'long',     // Optional: "Monday", "Tuesday", etc.
@@ -180,10 +177,12 @@ async function sendDataToSupabase() {
 
         const existing = existingRows && existingRows.length > 0 ? existingRows[0] : null;
 
+
         if (fetchError && fetchError.code !== 'PGRST116') {
             console.error("❌ Error checking existing:", fetchError);
             return;
         }
+
 
         if (existing) {
             console.log('🟡 Existing invoice found, updating HTML content only...');
@@ -195,7 +194,20 @@ async function sendDataToSupabase() {
 
             if (error) console.error("❌ Update failed:", error);
             else console.log("✅ Updated invoice content only:", data[0]);
+
+
+
         } else {
+
+            /* Increase the number of the rev in case there was a value in the rev element */
+            if (document.getElementById("current_used_rev_number_span_id").innerText.includes('R')) {
+                /* Set Rev in the inv number */
+                let revNumValue = document.getElementById("store_google_sheet_current_inv_company_rev_number_id");
+                const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
+                revNumValue.innerText = `${currentStoredRev + 1}`;
+            }
+
+
             console.log('🟢 No existing invoice, inserting new...');
             const { data, error } = await supabase
                 .from('inv_comp_indo')
@@ -451,6 +463,7 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
 
 
 
+        console.log(document.getElementById("store_google_sheet_current_inv_company_rev_number_id").innerText);
 
 
 
