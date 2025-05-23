@@ -2,101 +2,6 @@ let new_or_imported_inv_company_variable = 'new_invoice_company';
 
 
 
-// Your Google Apps Script Web App URL
-var googleSheetWebAppUrl = "https://script.google.com/macros/s/AKfycbwOTFpKDqVlQWslO-AvEYuHROAo4NsrAgQQ5mVoPcqxhGK4WaQYmtS-7d_eD5X0_RB30w/exec";
-
-function sendDataToGoogleSheet() {
-
-    /* Get the Roman month name and the year of the inv company and store them in the google sheet for later use (when importing) */
-    const fileName = document.getElementById('pdf_file_name_input_id').value;
-
-    // Split the filename by spaces
-    const parts = fileName.split(' ');
-
-    // Initialize variables to hold month and year
-    let extractedMonth = null;
-    let extractedYear = null;
-
-    // Loop through all parts to find ones with "_" or "-"
-    for (const part of parts) {
-        let segments = [];
-
-        if (part.includes('_')) {
-            segments = part.split('_');
-        } else if (part.includes('-')) {
-            segments = part.split('-');
-        }
-
-        // Check if we got at least 3 segments (e.g., ["123", "Month", "24"])
-        if (segments.length >= 3) {
-            extractedMonth = segments[1];
-            extractedYear = segments[2];
-        }
-    }
-
-    /* Store the values in the html code for later use (when importing) */
-    document.getElementById('store_google_sheet_inv_orignal_month_value').innerText = extractedMonth;
-    document.getElementById('store_google_sheet_inv_orignal_year_value').innerText = extractedYear;
-
-
-
-
-    // Get values from the spans
-    var invNumber = document.getElementById("current_used_inv_number_span_id")?.innerText.trim() || "";
-    var guestName = document.getElementById("current_used_guest_name_p_id").innerText.trim().replace(/[()]/g, '').trim() || "";
-    var revNumber = document.getElementById("current_used_rev_number_span_id")?.innerText.trim() || "";
-
-    // Format the name
-    var formattedName = revNumber === ''
-        ? `${invNumber} ${guestName}`
-        : `${invNumber}-${revNumber} ${guestName}`;
-
-
-
-    var wholeSection = document.getElementById("whole_invoice_company_section_id");
-    var htmlContent = wholeSection ? wholeSection.innerHTML : '';
-
-    var cleanedHTML = cleanHTML(htmlContent);
-
-    // Send data to Google Apps Script via POST request
-    fetch(googleSheetWebAppUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        mode: 'no-cors', // Note: This prevents getting a response from the server
-        body: JSON.stringify({
-            name: formattedName,
-            htmlContent: cleanedHTML
-        })
-    })
-        .then(() => {
-            loadAllData();
-
-
-            /* Re-enable the p element for saving the current package data in the same saved inv comp code */
-            document.getElementById('check_pdf_name_button').style.pointerEvents = 'auto';
-            document.getElementById('check_pdf_name_button').style.backgroundColor = '#4CAF50';
-            document.getElementById('check_pdf_name_button').innerText = 'Download';
-        })
-        .catch(error => console.error("Error:", error));
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* Code to store the data in the SupaBase */
@@ -105,7 +10,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 async function sendDataToSupabase() {
-    console.log('➡️ sendDataToSupabase function started');
+    /* console.log('➡️ sendDataToSupabase function started'); */
 
     const fileName = document.getElementById('pdf_file_name_input_id').value;
     const parts = fileName.split(' ');
@@ -120,7 +25,7 @@ async function sendDataToSupabase() {
         }
     }
 
-    console.log(`📅 Extracted Month: ${extractedMonth}, Year: ${extractedYear}`);
+    /* console.log(`📅 Extracted Month: ${extractedMonth}, Year: ${extractedYear}`); */
 
     document.getElementById('store_google_sheet_inv_orignal_month_value').innerText = extractedMonth;
     document.getElementById('store_google_sheet_inv_orignal_year_value').innerText = extractedYear;
@@ -130,7 +35,7 @@ async function sendDataToSupabase() {
     const revNumber = document.getElementById("current_used_rev_number_span_id")?.innerText.trim() || "";
 
     const formattedName = revNumber === '' ? `${invNumber} ${guestName}` : `${invNumber}-${revNumber} ${guestName}`;
-    console.log(`🧾 Formatted Name: ${formattedName}`);
+    /* console.log(`🧾 Formatted Name: ${formattedName}`); */
 
 
 
@@ -140,7 +45,7 @@ async function sendDataToSupabase() {
 
 
 
-    const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
+
 
 
 
@@ -185,7 +90,12 @@ async function sendDataToSupabase() {
 
 
         if (existing) {
-            console.log('🟡 Existing invoice found, updating HTML content only...');
+            /* Get the html elements ready to store */
+            const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
+
+
+
+            /* console.log('🟡 Existing invoice found, updating HTML content only...'); */
             const { data, error } = await supabase
                 .from('inv_comp_indo')
                 .update({ inv_company_indo_content: htmlContent })
@@ -200,12 +110,17 @@ async function sendDataToSupabase() {
         } else {
 
             /* Increase the number of the rev in case there was a value in the rev element */
-            if (document.getElementById("current_used_rev_number_span_id").innerText.includes('R')) {
-                /* Set Rev in the inv number */
-                let revNumValue = document.getElementById("store_google_sheet_current_inv_company_rev_number_id");
-                const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
-                revNumValue.innerText = `${currentStoredRev + 1}`;
-            }
+            let revNumValue = document.getElementById("store_google_sheet_current_inv_company_rev_number_id");
+            const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
+            revNumValue.innerText = `${currentStoredRev + 1}`;
+
+
+            console.log(document.getElementById("store_google_sheet_current_inv_company_rev_number_id"));
+
+
+            /* Get the html elements ready to store */
+            const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
+
 
 
             console.log('🟢 No existing invoice, inserting new...');
@@ -294,97 +209,71 @@ function cleanHTML(html) {
 // Global array to store all fetched data
 let allFetchedData = [];
 
-const fetchBatch = async (startRow, numRows) => {
-    try {
-        let response = await fetch(`https://script.google.com/macros/s/AKfycbwOTFpKDqVlQWslO-AvEYuHROAo4NsrAgQQ5mVoPcqxhGK4WaQYmtS-7d_eD5X0_RB30w/exec?startRow=${startRow}&numRows=${numRows}`);
-        let result = await response.json();
+const fetchBatchFromSupabase = async () => {
+    const { data, error } = await supabase
+        .from('inv_comp_indo')
+        .select('*')
+        .range(0, 10000);
 
-        if (!result.totalRows) {
-            console.error("❌ API did not return totalRows:", result);
-        }
-
-        return result;
-    } catch (error) {
-        console.error("❌ Error fetching data:", error);
-        return { totalRows: 0, data: [] };
-    }
-};
-
-const loadAllData = async () => {
-
-    // Delete all previously imported Google Sheet data
-    const container = document.getElementById("all_google_sheet_stored_data_names_for_importing_data_div");
-    container.innerHTML = '';
-
-    // Get the whole invoice company section
-    const wholeInvoiceSection = document.getElementById("whole_invoice_company_section_id");
-
-    // Fetch the total number of rows
-    let initialFetch = await fetchBatch(1, 1);
-
-
-    let totalRows = initialFetch.totalRows || 0;
-
-    if (totalRows === 0) {
-        console.error("❌ Could not retrieve total row count.");
+    if (error) {
+        console.error("❌ Error fetching data from Supabase:", error);
         return;
     }
 
-    let batchSize = 200;
-    let allDataSet = new Set(); // Store unique names
-    let remainingRows = totalRows;
+    allFetchedData = data.map(row => ({
+        name: row.name?.trim(),
+        content: row.inv_company_indo_content?.trim()
+    }));
 
-    for (let i = 0; i < 5; i++) {
-        if (remainingRows <= 1) break;
+    /* console.log("📦 All fetched data:", allFetchedData); */
+};
 
-        let numRows = Math.min(batchSize, remainingRows - 1);
-        let startRow = remainingRows;
-        let endRow = Math.max(1, startRow - numRows + 1);
+const loadAllData = async () => {
+    const container = document.getElementById("all_google_sheet_stored_data_names_for_importing_data_div");
 
-        let fetchResult = await fetchBatch(startRow, numRows);
-        let data = fetchResult.data;
-
-        if (!data.length) {
-            console.warn(`⚠️ Batch ${i + 1}: No data fetched, stopping.`);
-            break;
-        }
-
-        data.forEach(row => {
-            if (row.name && row.content !== undefined) {
-                allFetchedData.push({
-                    name: row.name.trim(),
-                    content: row.content.trim()
-                });
-            }
-        });
-
-        let batchHTMLElements = [];
-
-        data.forEach(row => {
-            if (row.name !== "Name" && !allDataSet.has(row.name)) {
-                allDataSet.add(row.name);
-
-                let h3 = document.createElement("h3");
-                h3.textContent = row.name;
-                h3.onclick = function () {
-                    importContentForSelectedName(this);
-                };
-
-                wholeInvoiceSection.appendChild(h3);
-                batchHTMLElements.push(h3);
-            }
-        });
-
-        batchHTMLElements.forEach(el => container.appendChild(el));
-
-        remainingRows -= numRows;
+    if (!container) {
+        console.error("❌ Could not find #all_google_sheet_stored_data_names_for_importing_data_div");
+        return;
     }
 
-    // 🔍 Trigger filtering based on existing search input value(s)
-    let searchBarInputElements = document.querySelectorAll('.search_bar_input_class');
-    searchBarInputElements.forEach(input => {
-        let filter = input.value.trim().toLowerCase();
-        if (filter) {
+    container.innerHTML = '';
+    /* console.log("🧹 Cleared container"); */
+
+    await fetchBatchFromSupabase(); // assumes it fills allFetchedData globally
+
+    /* console.log("📦 allFetchedData contents:", allFetchedData); */
+
+    const allDataSet = new Set();
+    const batchHTMLElements = [];
+
+    allFetchedData.forEach(row => {
+        if (row.name && !allDataSet.has(row.name)) {
+            allDataSet.add(row.name);
+
+            const h3 = document.createElement("h3");
+            h3.textContent = row.name;
+
+            h3.onclick = function () {
+                /* console.log(`📥 You clicked: ${row.name}`); */
+                importContentForSelectedName(this);
+            };
+
+            batchHTMLElements.push(h3);
+        }
+    });
+
+    if (batchHTMLElements.length === 0) {
+        console.warn("⚠️ No unique entries found to display.");
+    } else {
+        // Reverse the order before appending
+        batchHTMLElements.reverse().forEach(el => {
+            container.appendChild(el);
+        });
+    }
+
+    // Optional: trigger input filter if any
+    document.querySelectorAll('.search_bar_input_class').forEach(input => {
+        if (input.value.trim()) {
             let event = new Event('input', { bubbles: true });
             input.dispatchEvent(event);
         }
@@ -461,9 +350,6 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
 
         document.getElementById("today_inv_company_date_p_id").innerText = `Date: ${day} ${month} ${year}`;
 
-
-
-        console.log(document.getElementById("store_google_sheet_current_inv_company_rev_number_id").innerText);
 
 
 
