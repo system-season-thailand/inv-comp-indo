@@ -115,9 +115,6 @@ async function sendDataToSupabase() {
             revNumValue.innerText = `${currentStoredRev + 1}`;
 
 
-            console.log(document.getElementById("store_google_sheet_current_inv_company_rev_number_id"));
-
-
             /* Get the html elements ready to store */
             const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
 

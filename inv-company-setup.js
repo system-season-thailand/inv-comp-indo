@@ -1992,9 +1992,6 @@ async function checkThePdfNameToDownload() {
         sendDataToSupabase();
 
 
-        /* Run a function to store the data in the google sheet */
-        sendDataToGoogleSheet();
-
 
 
 
