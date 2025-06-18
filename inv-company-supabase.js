@@ -108,7 +108,6 @@ async function sendDataToSupabase() {
     } catch (error) {
         console.error("🔥 Unexpected error:", error);
     }
-
 }
 
 

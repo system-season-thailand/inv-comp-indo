@@ -39,20 +39,8 @@ async function sendDataToSupabase() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
     /* Get the found month in the inv company data */
     const lastFoundMonthName = printLatestFullMonthName();
-
 
 
 
@@ -98,9 +86,14 @@ async function sendDataToSupabase() {
             /* console.log('🟡 Existing invoice found, updating HTML content only...'); */
             const { data, error } = await supabase
                 .from('inv_comp_indo')
-                .update({ inv_company_indo_content: htmlContent })
+                .update({
+                    inv_company_indo_content: htmlContent,
+                    inv_company_last_found_month_name: lastFoundMonthName,
+                    inv_company_user_current_date: currentUserFullDate
+                })
                 .eq('name', formattedName)
-                .select(); // optional: to return the updated row
+                .select();
+
 
             if (error) console.error("❌ Update failed:", error);
             else console.log("✅ Updated invoice content only:", data[0]);
@@ -134,7 +127,6 @@ async function sendDataToSupabase() {
             if (error) console.error("❌ Insert failed:", error);
             else console.log("✅ Inserted new invoice:", data[0]);
         }
-
 
 
         // Disable the button while processing

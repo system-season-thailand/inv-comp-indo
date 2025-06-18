@@ -669,54 +669,122 @@ function processInvoiceData(data) {
 
     document.getElementById("invoice_company_main_table_div_id").innerHTML = "";
 
+
+
+
+
     const mergeDates = (startDate, endDate) => {
         if (!startDate || !endDate) return "N/A";
 
-        const defaultYear = "2025"; // Set default year if missing
+        const now = new Date();
+        const currentYear = now.getFullYear();
 
         const monthReplacements = {
-            "Jan": "Jan",
-            "Feb": "Feb",
-            "Mar": "Mar",
-            "Apr": "Apr",
-            "Mei": "May",
-            "Jun": "Jun",
-            "Jul": "Jul",
-            "Agu": "Aug",
-            "Sep": "Sep",
-            "Okt": "Oct",
-            "Nov": "Nov",
-            "Des": "Dec"
+            "Jan": "Jan", "Feb": "Feb", "Mar": "Mar", "Apr": "Apr", "Mei": "May",
+            "Jun": "Jun", "Jul": "Jul", "Agu": "Aug", "Sep": "Sep", "Okt": "Oct",
+            "Nov": "Nov", "Des": "Dec"
         };
 
-        // Parse dates into parts
-        const startParts = startDate.split(" ");
-        const endParts = endDate.split(" ");
+        const monthNumbers = {
+            "Jan": 0, "Feb": 1, "Mar": 2, "Apr": 3, "May": 4,
+            "Jun": 5, "Jul": 6, "Aug": 7, "Sep": 8, "Oct": 9,
+            "Nov": 10, "Dec": 11
+        };
 
-        let [startDay, startMonth, startYear] = startParts;
-        let [endDay, endMonth, endYear] = endParts;
+        const parseDateParts = (dateStr) => {
+            const parts = dateStr.trim().split(" ");
+            const [day, rawMonth, rawYear] = parts;
+            let month = monthReplacements[rawMonth] || rawMonth;
+            let year = rawYear;
 
-        // Replace non-English months with English ones
-        startMonth = monthReplacements[startMonth] || startMonth;
-        endMonth = monthReplacements[endMonth] || endMonth;
+            return { day, month, year };
+        };
 
-        // If year is missing, set default
-        if (!startYear) startYear = defaultYear;
-        if (!endYear) endYear = defaultYear;
+        const start = parseDateParts(startDate);
+        const end = parseDateParts(endDate);
 
-        // Case 1: Same year and same month → "6 - 9 Jul 2025"
-        if (startYear === endYear && startMonth === endMonth) {
-            return `${startDay} - ${endDay} ${startMonth} ${startYear}`;
+        // Auto-assign missing years intelligently
+        if (!start.year && !end.year) {
+            start.year = currentYear.toString();
+
+            const startMonthIndex = monthNumbers[start.month];
+            const endMonthIndex = monthNumbers[end.month];
+
+            if (startMonthIndex > endMonthIndex) {
+                end.year = (currentYear + 1).toString();
+            } else {
+                end.year = currentYear.toString();
+            }
+        } else if (!start.year) {
+            const endYearNum = parseInt(end.year, 10);
+            const startMonthIndex = monthNumbers[start.month];
+            const endMonthIndex = monthNumbers[end.month];
+            start.year = (startMonthIndex > endMonthIndex ? endYearNum - 1 : endYearNum).toString();
+        } else if (!end.year) {
+            const startYearNum = parseInt(start.year, 10);
+            const startMonthIndex = monthNumbers[start.month];
+            const endMonthIndex = monthNumbers[end.month];
+            end.year = (startMonthIndex > endMonthIndex ? startYearNum + 1 : startYearNum).toString();
         }
 
-        // Case 2: Same year but different months → "28 Apr - 2 May 2025"
-        if (startYear === endYear) {
-            return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${startYear}`;
+        // Final display
+        if (start.year === end.year && start.month === end.month) {
+            return `${start.day} - ${end.day} ${start.month} ${start.year}`;
         }
 
-        // Case 3: Different years → "27 Dec 2025 - 3 Jan 2026"
-        return `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
+        if (start.year === end.year) {
+            return `${start.day} ${start.month} - ${end.day} ${end.month} ${start.year}`;
+        }
+
+        return `${start.day} ${start.month} ${start.year} - ${end.day} ${end.month} ${end.year}`;
     };
+
+
+
+    function fixHotelDateYears() {
+        const rows = document.querySelectorAll('.invoice_company_row_div_class');
+        let lastCheckOutDate = null;
+
+        rows.forEach(row => {
+            const dateP = row.querySelector('.hotel_check_in_out_date_class');
+            if (!dateP) return;
+
+            let dateText = dateP.innerText.trim(); // e.g. "1 - 8 Jan 2025"
+            let checkInDate, checkOutDate;
+
+            // Match formats like "8 Dec 2025 - 1 Jan 2026" OR "1 - 8 Jan 2025"
+            const regexFull = /^(\d{1,2}) (\w{3}) (\d{4}) - (\d{1,2}) (\w{3}) (\d{4})$/;
+            const regexPartial = /^(\d{1,2}) - (\d{1,2}) (\w{3}) (\d{4})$/;
+
+            if (regexFull.test(dateText)) {
+                // Already fully formed, just update tracking
+                const [, d1, m1, y1, d2, m2, y2] = regexFull.exec(dateText);
+                checkInDate = new Date(`${m1} ${d1}, ${y1}`);
+                checkOutDate = new Date(`${m2} ${d2}, ${y2}`);
+            } else if (regexPartial.test(dateText)) {
+                // Incomplete, like "1 - 8 Jan 2025"
+                const [, d1, d2, month, year] = regexPartial.exec(dateText);
+                let inferredYear = parseInt(year);
+
+                // Try to infer based on previous check-out
+                if (lastCheckOutDate && new Date(`${month} ${d1}, ${year}`) < lastCheckOutDate) {
+                    inferredYear += 1; // Move to next year
+                }
+
+                checkInDate = new Date(`${month} ${d1}, ${inferredYear}`);
+                checkOutDate = new Date(`${month} ${d2}, ${inferredYear}`);
+
+                // Update the text to include corrected year
+                dateP.innerText = `${d1} - ${d2} ${month} ${inferredYear}`;
+            }
+
+            if (checkOutDate) {
+                lastCheckOutDate = checkOutDate;
+            }
+        });
+    }
+
+
 
 
     const createHotelRows = (data) => {
@@ -889,6 +957,9 @@ function processInvoiceData(data) {
     const createFlightRow = (data) => {
         if (!data) return;
 
+        // FIX THE HOTEL DATES FIRST!
+        fixHotelDateYears(); // <<< ADD THIS LINE
+
         const flightDiv = document.createElement("div");
         flightDiv.id = "flight_tickets_row_div_id";
 
@@ -898,33 +969,29 @@ function processInvoiceData(data) {
         // If dynamic dates are "N/A", use startDate and endDate from `data`
         if (flightDates === "N/A" && data.startDate && data.endDate) {
             flightDates = formatDateRange(data.startDate, data.endDate);
-            console.log(data.startDate, data.endDate)
         }
-
 
         let getFlightDestinationText = getFlightDestination();
         if (getFlightDestinationText === '') {
             getFlightDestinationText = '<span class="flight_destination_text_options_class red_text_color_class">N/A</span>'
         }
 
-
-
         const rowDiv = document.createElement("div");
         rowDiv.className = "invoice_company_row_div_class";
 
         rowDiv.innerHTML = `
-            <div>
-                <p contenteditable="true">${flightDates}</p>
-            </div>
-            <div>
-                <p class="duplicate_this_element_class" contenteditable="true" style="padding: 25px 0">Domestic Flight Tickets</p>
-            </div>
-            <div>
-                <p contenteditable="true">${getFlightDestinationText}</p>
-            </div>
-            <div style="border-right: 0.5px solid black;">
-                <p class="red_text_color_class flight_amount_text_options_class" contenteditable="true">${data.quantity} Person</p>  
-            </div>`;
+        <div>
+            <p contenteditable="true">${flightDates}</p>
+        </div>
+        <div>
+            <p class="duplicate_this_element_class" contenteditable="true" style="padding: 25px 0">Domestic Flight Tickets</p>
+        </div>
+        <div>
+            <p contenteditable="true">${getFlightDestinationText}</p>
+        </div>
+        <div style="border-right: 0.5px solid black;">
+            <p class="red_text_color_class flight_amount_text_options_class" contenteditable="true">${data.quantity} Person</p>  
+        </div>`;
 
         flightDiv.appendChild(rowDiv);
         document.getElementById("invoice_company_main_table_div_id").appendChild(flightDiv);
@@ -936,96 +1003,96 @@ function processInvoiceData(data) {
 
 
 
+
     const createTransportationRow = (data) => {
         if (!data) return;
+
+        
+        // ✅ Ensure hotel check-in/out dates are standardized
+        fixHotelDateYears();
+
 
         const transportDiv = document.createElement("div");
         transportDiv.id = "transportation_row_div_id";
 
-        // Get all hotel locations from elements with the class "hotel_location_value_class"
         const allHotelLocations = Array.from(document.querySelectorAll(".hotel_location_value_class"))
-            .map(p => p.innerText.trim()) // Extract text and trim spaces
-            .filter(text => text !== ""); // Remove empty values
+            .map(p => p.innerText.trim())
+            .filter(text => text !== "");
 
-        // Use Set to remove duplicates, then convert back to an array
         const uniqueHotelLocations = [...new Set(allHotelLocations)];
 
-        // Join locations with a comma
         const allHotelLocationsSeparatedByComma = uniqueHotelLocations.length > 0
             ? uniqueHotelLocations.join(", ")
-            : '<span class="transportation_cities_text_options_class red_text_color_class">N/A</span>'; // Set "N/A" if empty
+            : '<span class="transportation_cities_text_options_class red_text_color_class">N/A</span>';
 
-        const defaultYear = "2025"; // Default year if missing
+        const defaultYear = 2025;
 
-        // Function to ensure the date includes a year
-        const parseDateWithDefaultYear = (dateString) => {
-            if (!dateString) return `N/A`;
-
-            const monthReplacements = {
-                "Mei": "May",
-                "Agu": "Aug",
-                "Okt": "Oct",
-                "Des": "Dec"
-            };
-
-            const parts = dateString.split(" ");
-            let [day, month, year] = parts;
-            if (!year) year = defaultYear;
-            if (monthReplacements[month]) {
-                month = monthReplacements[month];
-            }
-
-            return `${day} ${month} ${year}`;
+        const monthReplacements = {
+            "Mei": "May",
+            "Agu": "Aug",
+            "Okt": "Oct",
+            "Des": "Dec"
         };
 
+        const fixMonth = (month) => monthReplacements[month] || month;
 
-        // Format and merge startDate and endDate like hotels
-        const formattedStartDate = parseDateWithDefaultYear(data.startDate);
-        const formattedEndDate = parseDateWithDefaultYear(data.endDate);
+        const parseDateParts = (dateStr) => {
+            if (!dateStr) return null;
+            const [day, monthRaw, yearRaw] = dateStr.trim().split(" ");
+            const month = fixMonth(monthRaw);
+            const year = yearRaw ? parseInt(yearRaw) : null;
+            return { day, month, year };
+        };
 
-        // Extract day, month, and year
-        const [startDay, startMonth, startYear] = formattedStartDate.split(" ");
-        const [endDay, endMonth, endYear] = formattedEndDate.split(" ");
+        const start = parseDateParts(data.startDate);
+        const end = parseDateParts(data.endDate);
 
-        let mergedDates;
+        if (!start || !end) return;
 
-        if (startYear === endYear) {
-            if (startMonth === endMonth) {
-                // Same month: "10 - 15 May 2025"
-                mergedDates = `${startDay} - ${endDay} ${startMonth} ${startYear}`;
-            } else {
-                // Same year, different months: "28 Apr - 3 May 2025"
-                mergedDates = `${startDay} ${startMonth} - ${endDay} ${endMonth} ${startYear}`;
-            }
-        } else {
-            // Different years: "27 Dec 2025 - 3 Jan 2026"
-            mergedDates = `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
+        let startYear = start.year ?? defaultYear;
+        let endYear = end.year;
+
+        // 🔄 Infer end year if missing
+        if (!endYear) {
+            const tempStartDate = new Date(`${start.month} ${start.day}, ${startYear}`);
+            const tempEndDate = new Date(`${end.month} ${end.day}, ${startYear}`);
+            endYear = tempEndDate < tempStartDate ? startYear + 1 : startYear;
         }
 
-        // Calculate the number of days between the dates
-        const startDateObj = new Date(`${startDay} ${startMonth} ${startYear}`);
-        const endDateObj = new Date(`${endDay} ${endMonth} ${endYear}`);
-        const durationDays = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1; // Convert milliseconds to days
+
+        const startDateObj = new Date(`${start.month} ${start.day}, ${startYear}`);
+        const endDateObj = new Date(`${end.month} ${end.day}, ${endYear}`);
+        const durationDays = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1;
+
+        let mergedDates;
+        if (startYear !== endYear) {
+            mergedDates = `${start.day} ${start.month} ${startYear} - ${end.day} ${end.month} ${endYear}`;
+        } else if (start.month !== end.month) {
+            mergedDates = `${start.day} ${start.month} - ${end.day} ${end.month} ${startYear}`;
+        } else {
+            mergedDates = `${start.day} - ${end.day} ${start.month} ${startYear}`;
+        }
 
         const rowDiv = document.createElement("div");
         rowDiv.className = "invoice_company_row_div_class";
         rowDiv.innerHTML = `
-            <div>
-                <p>${mergedDates}</p>
-            </div>
-            <div>
-                <p class="duplicate_this_element_class" style="padding: 25px 0">TRANSPORTATION + SIM CARD</p>
-            </div>
-            <div>
-                <p class="transportation_cities_text_options_class">${allHotelLocationsSeparatedByComma}</p>
-            </div>
-            <div style="border-right: 0.5px solid black;">
-                <p>${durationDays} Days</p> 
-            </div>`;
+        <div>
+            <p>${mergedDates}</p>
+        </div>
+        <div>
+            <p class="duplicate_this_element_class" style="padding: 25px 0">TRANSPORTATION + SIM CARD</p>
+        </div>
+        <div>
+            <p class="transportation_cities_text_options_class">${allHotelLocationsSeparatedByComma}</p>
+        </div>
+        <div style="border-right: 0.5px solid black;">
+            <p>${durationDays} Days</p> 
+        </div>`;
 
         transportDiv.appendChild(rowDiv);
         document.getElementById("invoice_company_main_table_div_id").appendChild(transportDiv);
     };
+
 
 
 
@@ -1207,6 +1274,10 @@ function processInvoiceData(data) {
     document.getElementById("today_inv_company_date_p_id").innerText = `Date: ${day} ${month} ${year}`;
 
 
+
+
+    /* Call a function to correct the hotels dates */
+    fixHotelDateYears();
 
 
 
@@ -2143,40 +2214,55 @@ const printLatestFullMonthName = () => {
     const text = div.innerText;
 
     const monthReplacements = {
-        "Jan": "January", "Feb": "February", "Mar": "March", "Apr": "April",
-        "Mei": "May", "May": "May", "Jun": "June", "Jul": "July",
-        "Agu": "August", "Aug": "August", "Sep": "September", "Okt": "October",
-        "Oct": "October", "Nov": "November", "Des": "December", "Dec": "December"
+        "Jan": "Jan", "Feb": "Feb", "Mar": "Mar", "Apr": "Apr",
+        "Mei": "May", "May": "May", "Jun": "Jun", "Jul": "Jul",
+        "Agu": "Aug", "Aug": "Aug", "Sep": "Sep", "Okt": "Oct",
+        "Oct": "Oct", "Nov": "Nov", "Des": "Dec", "Dec": "Dec"
     };
 
-    const englishMonthOrder = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
+    const datePattern = /(\d{1,2}) (\w{3}) (\d{4})|(\d{1,2}) - (\d{1,2}) (\w{3}) (\d{4})|(\d{1,2}) (\w{3}) - (\d{1,2}) (\w{3}) (\d{4})/g;
 
-    let lastFoundMonthName = null;
-    const foundMonths = [];
+    let match;
+    let latestDate = null;
 
-    const monthPattern = new RegExp(Object.keys(monthReplacements).join("|"), "g");
-    const matches = text.match(monthPattern);
+    while ((match = datePattern.exec(text)) !== null) {
+        let day, month, year;
 
-    if (matches) {
-        matches.forEach(month => {
-            const fullMonth = monthReplacements[month];
-            if (fullMonth && !foundMonths.includes(fullMonth)) {
-                foundMonths.push(fullMonth);
+        if (match[1] && match[2] && match[3]) {
+            // Format: "21 Jan 2026"
+            day = match[1];
+            month = monthReplacements[match[2]] || match[2];
+            year = match[3];
+        } else if (match[4] && match[5] && match[6] && match[7]) {
+            // Format: "3 - 8 Dec 2025"
+            day = match[5]; // last day
+            month = monthReplacements[match[6]] || match[6];
+            year = match[7];
+        } else if (match[8] && match[9] && match[10] && match[11] && match[12]) {
+            // Format: "8 Dec - 1 Jan 2026"
+            day = match[10]; // last day
+            month = monthReplacements[match[11]] || match[11];
+            year = match[12];
+        }
+
+        if (day && month && year) {
+            const parsedDate = new Date(`${month} ${day}, ${year}`);
+            if (!latestDate || parsedDate > latestDate) {
+                latestDate = parsedDate;
             }
-        });
-
-        if (foundMonths.length > 0) {
-            foundMonths.sort((a, b) => englishMonthOrder.indexOf(a) - englishMonthOrder.indexOf(b));
-            lastFoundMonthName = foundMonths[foundMonths.length - 1];
-            console.log("Latest Month:", lastFoundMonthName);
         }
     }
 
-    // If needed elsewhere, you can return it
-    return lastFoundMonthName;
+    if (latestDate) {
+        const fullMonth = latestDate.toLocaleString("en-US", { month: "long" });
+        const year = latestDate.getFullYear();
+        const result = `${fullMonth} ${year}`;
+        console.log("Latest Month-Year:", result);
+        return result;
+    }
+
+    return null;
 };
+
 
 
