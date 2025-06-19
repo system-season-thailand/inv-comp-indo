@@ -2261,7 +2261,7 @@ const printLatestFullMonthName = () => {
         return result;
     }
 
-    // Fallback: return current month and year
+    // if no date is found then return current user month and year
     const now = new Date();
     const currentMonth = now.toLocaleString("en-US", { month: "long" });
     const currentYear = now.getFullYear();
