@@ -400,7 +400,7 @@ function processInvoiceData(data) {
     /* Store the values in the google sheet for later refrence (when importing) */
     document.getElementById('store_google_sheet_guest_name').innerText = clientName;
     document.getElementById('store_google_sheet_company_name').innerText = travelAgency;
-    document.getElementById('store_google_sheet_inv_number').innerText = invoiceNo;
+    document.getElementById('store_google_sheet_inv_number').innerText = formattedInvoiceNo;
 
 
 
