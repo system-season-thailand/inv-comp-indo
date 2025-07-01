@@ -345,9 +345,9 @@ document.getElementById("dataInput").oninput = function () {
 
 function processInvoiceData(data) {
     const rows = data.trim().split("\n");
-    const guestBy = rows[0].split(":")[1].trim();
-    const invoiceNo = rows[1].split(":")[1].trim().split("-").pop();
-    const clientName = rows[2].split(":")[1].trim();
+    const guestBy = rows[1].split(":")[1].trim();
+    const invoiceNo = rows[2].split(":")[1].trim().split("-").pop();
+    const clientName = rows[3].split(":")[1].trim();
 
     // Try to extract travel agency from parentheses, fallback to guestBy if not found
     const travelAgency = guestBy.match(/\(([^)]+)\)/)?.[1] || guestBy;
