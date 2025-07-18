@@ -384,6 +384,7 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
 
 
 
+    /* Call a function to allow the user to replace the logo image */
     setupLogoImagePicker();
 };
 
