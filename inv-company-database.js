@@ -380,6 +380,11 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
         clickedGoogleSheetDataName.style.backgroundColor = 'rgb(0, 155, 0)';
         clickedGoogleSheetDataName.style.color = 'white';
     }
+
+
+
+
+    setupLogoImagePicker();
 };
 
 // Call loadAllData to start fetching
