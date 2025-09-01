@@ -2068,22 +2068,27 @@ async function checkThePdfNameToDownload() {
         // Play a sound effect
         playSoundEffect('success');
 
+        // Immediately disable the button and show "Great!" with gray background
+        const button = document.getElementById('check_pdf_name_button');
+        button.style.pointerEvents = 'none';
+        button.style.background = 'gray'; // Use full background property to override CSS gradient
+        button.style.cursor = 'not-allowed'; // Show disabled cursor
+        button.innerText = 'Great!';
 
         // Wait for Supabase storage to finish before continuing
         await sendDataToSupabase();
 
 
+        // Re-enable the button after Supabase finishes
+        button.style.pointerEvents = 'auto';
+        button.style.background = 'linear-gradient(145deg, #4fc3f7, #f06292)'; // Restore original gradient
+        button.style.cursor = 'pointer'; // Restore pointer cursor
+        button.innerText = 'Download';
 
-
-
-        // Disable the button while processing
-        const button = document.getElementById('check_pdf_name_button');
-        button.style.pointerEvents = 'none';
-        button.style.backgroundColor = 'gray';
-        button.innerText = 'Great!';
 
         // Target all elements with the red text class
         const redTextElements = document.querySelectorAll('.red_text_color_class');
+
 
         // Store the original color and set the text color to black
         redTextElements.forEach(element => {

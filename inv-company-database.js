@@ -129,10 +129,6 @@ async function sendDataToSupabase() {
         }
 
 
-        // Disable the button while processing
-        const button = document.getElementById('check_pdf_name_button');
-        button.style.pointerEvents = 'auto';
-        button.innerText = 'Download';
 
     } catch (error) {
         console.error("🔥 Unexpected error:", error);
