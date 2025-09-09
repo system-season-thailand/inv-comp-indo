@@ -601,7 +601,7 @@ function processInvoiceData(data) {
 
                 const upperHotel = hotel.toUpperCase();
 
-                const accommodationOnlyHotels = ["AL JUMEIRAH", "MARSEILLIA", "AL ANDALUS", "NEOM"];
+                const accommodationOnlyHotels = ["AL JUMEIRAH", "MARSEILLIA", "AL ANDALUS", "NEOM", "ALMARINA"];
 
                 const details = accommodationOnlyHotels.some(name => upperHotel.includes(name))
                     ? "Accommodation Only"
