@@ -78,9 +78,9 @@ async function sendDataToSupabase() {
 
 
         if (existing) {
+
             /* Get the html elements ready to store */
             const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
-
 
 
             /* console.log('🟡 Existing invoice found, updating HTML content only...'); */
