@@ -1180,7 +1180,7 @@ function processInvoiceData(data) {
 
         // Determine the currency
         let currency = "SAR"; // Default currency
-        if (agencyUpper.includes("AL EZZ") || agencyUpper.includes("AL FAKHAMAH")) {
+        if (agencyUpper.includes("AL EZZ") || agencyUpper.includes("AL FAKHAMAH") || agencyUpper.includes("ALFAKHAMAH")) {
             currency = "USD";
         } else if (guestByUpper.includes("RAYAN") || guestByUpper.includes("TURKI") || guestByUpper.includes("TURKEY") || guestByUpper.includes("TARIQ") || guestByUpper.includes("SECRET") || guestByUpper.includes("TURKY")) {
             currency = "IDR";
