@@ -1210,11 +1210,17 @@ function processInvoiceData(data) {
                 top_left_inv_company_orignal_div_id.style.display = "none";
                 top_left_inv_company_golden_div_id.style.display = "flex";
                 invoice_company_golden_under_guest_name_info_div.style.display = "block";
-                invoice_company_al_ghazali_under_guest_name_info_div.style.display = "none";
+
+
+                /* in 11 Oct 2026 delete the following if condition (I used it tp avoid error in old inv) */
+                if (invoice_company_al_ghazali_under_guest_name_info_div) {
+                    invoice_company_al_ghazali_under_guest_name_info_div.style.display = "none";
+                }
+
             }
 
 
-        } else if(agencyUpper.includes("AL GHAZALI") || agencyUpper.includes("ALGHAZALI")) {
+        } else if (agencyUpper.includes("AL GHAZALI") || agencyUpper.includes("ALGHAZALI")) {
 
             /* in 2026 delete the following if condition (I used it tp avoid error in old inv) */
             if (invoice_company_al_ghazali_under_guest_name_info_div) {
@@ -1222,18 +1228,28 @@ function processInvoiceData(data) {
                 top_left_inv_company_orignal_div_id.style.display = "none";
                 top_left_inv_company_golden_div_id.style.display = "flex";
                 invoice_company_golden_under_guest_name_info_div.style.display = "none";
-                invoice_company_al_ghazali_under_guest_name_info_div.style.display = "block";
+
+
+                /* in 11 Oct 2026 delete the following if condition (I used it tp avoid error in old inv) */
+                if (invoice_company_al_ghazali_under_guest_name_info_div) {
+                    invoice_company_al_ghazali_under_guest_name_info_div.style.display = "block";
+                }
             }
 
 
-        }else{
+        } else {
             /* in 2026 delete the following if condition (I used it tp avoid error in old inv) */
             if (top_left_inv_company_orignal_div_id) {
 
                 top_left_inv_company_orignal_div_id.style.display = "flex";
                 top_left_inv_company_golden_div_id.style.display = "none";
                 invoice_company_golden_under_guest_name_info_div.style.display = "none";
-                invoice_company_al_ghazali_under_guest_name_info_div.style.display = "none";
+
+
+                /* in 11 Oct 2026 delete the following if condition (I used it tp avoid error in old inv) */
+                if (invoice_company_al_ghazali_under_guest_name_info_div) {
+                    invoice_company_al_ghazali_under_guest_name_info_div.style.display = "none";
+                }
             }
         }
 
