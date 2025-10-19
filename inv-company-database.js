@@ -102,11 +102,6 @@ async function sendDataToSupabase() {
 
         } else {
 
-            /* Increase the number of the rev in case there was a value in the rev element */
-            let revNumValue = document.getElementById("store_google_sheet_current_inv_company_rev_number_id");
-            const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
-            revNumValue.innerText = `${currentStoredRev + 1}`;
-
 
             /* Get the html elements ready to store */
             const htmlContent = cleanHTML(document.getElementById("whole_invoice_company_section_id").innerHTML);
@@ -203,7 +198,7 @@ const fetchBatchFromSupabase = async () => {
     while (true) {
         const { data, error } = await supabase
             .from('inv_comp_indo')
-            .select('*')
+            .select('name')  // Only fetch the name column for faster loading
             .range(start, start + batchSize - 1); // Fetch the current 1,000-row window
 
         if (error) {
@@ -216,11 +211,10 @@ const fetchBatchFromSupabase = async () => {
             break;
         }
 
-        // Map and push current batch into the global store
+        // Map and push current batch into the global store (only names)
         allFetchedData.push(
             ...data.map(row => ({
-                name: row.name?.trim(),
-                content: row.inv_company_indo_content?.trim()
+                name: row.name?.trim()
             }))
         );
 
@@ -295,23 +289,51 @@ const loadAllData = async () => {
 
 
 
+// Function to fetch content for a specific name from Supabase
+const fetchContentForName = async (name) => {
+    try {
+        const { data, error } = await supabase
+            .from('inv_comp_indo')
+            .select('inv_company_indo_content')
+            .eq('name', name)
+            .single();
+
+        if (error) {
+            console.error("❌ Error fetching content:", error);
+            return null;
+        }
+
+        return data?.inv_company_indo_content?.trim() || null;
+    } catch (error) {
+        console.error("🔥 Unexpected error fetching content:", error);
+        return null;
+    }
+};
+
 // Function to import content for selected name
-const importContentForSelectedName = (clickedGoogleSheetDataName) => {
+const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
     const wholeInvoiceSection = document.getElementById("whole_invoice_company_section_id");
 
 
 
     if (clickedGoogleSheetDataName.style.backgroundColor === 'rgb(0, 155, 0)') {
 
-        // Find the object that matches the selected name
-        let foundObject = allFetchedData.find(obj => obj.name === clickedGoogleSheetDataName.innerText.trim());
+        // Get the selected name
+        const selectedName = clickedGoogleSheetDataName.innerText.trim();
 
         // Play a sound effect
         playSoundEffect('success');
 
+        // Fetch the content for the selected name
+        const content = await fetchContentForName(selectedName);
 
-        /* Insert the imported data into the 'whole_invoice_company_section_id' */
-        wholeInvoiceSection.innerHTML = foundObject.content;
+        if (content) {
+            /* Insert the imported data into the 'whole_invoice_company_section_id' */
+            wholeInvoiceSection.innerHTML = content;
+        } else {
+            console.error("❌ Could not fetch content for:", selectedName);
+            return;
+        }
 
 
         /* Hide the google sheet data */
@@ -361,17 +383,24 @@ const importContentForSelectedName = (clickedGoogleSheetDataName) => {
         /* Set Rev in the inv number */
         let revNumElement = document.querySelector("#current_used_rev_number_span_id");
 
-        /* in 7 May 2026 delete the whole following if (I used it to avoid error in old packages with 0 values in rev number) */
-        if (document.getElementById("store_google_sheet_current_inv_company_rev_number_id").innerText === '0') {
-            /* Set Rev in the inv number */
-            let revNumValue = document.getElementById("store_google_sheet_current_inv_company_rev_number_id");
-            const currentStoredRev = parseInt(revNumValue.innerText, 10) || 0;
-            revNumValue.innerText = `${currentStoredRev + 1}`;
-        }
+        // Get all h3 elements from the dropdown
+        const allH3Elements = document.querySelectorAll('#all_google_sheet_stored_data_names_for_importing_data_div h3');
 
+        // Extract the first 4 digits from the selected h3 element
+        const selectedH3Text = clickedGoogleSheetDataName.innerText.trim();
+        const first4Digits = selectedH3Text.substring(0, 4);
 
-        /* Set the rev values in the element */
-        revNumElement.innerText = `Rev${document.getElementById("store_google_sheet_current_inv_company_rev_number_id").innerText}`;
+        // Count how many h3 elements start with the same first 4 digits
+        let similarCount = 0;
+        allH3Elements.forEach(h3Element => {
+            const h3Text = h3Element.innerText.trim();
+            if (h3Text.startsWith(first4Digits)) {
+                similarCount++;
+            }
+        });
+
+        /* Set the rev values in the element based on the count of similar elements */
+        revNumElement.innerText = `Rev${similarCount}`;
 
 
 
