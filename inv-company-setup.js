@@ -2398,3 +2398,107 @@ function setupLogoImagePicker() {
         }
     });
 };
+
+
+
+function convertToUSDDetails() {
+    const btn = document.getElementById("convert_usd_button_id");
+    let payment4 = document.getElementById("payment_details_4");
+
+    // Recreate payment_details_4 if it was not included in imported data
+    if (!payment4) {
+        console.log("[convertToUSDDetails] payment_details_4 not found in DOM — recreating it...");
+
+        payment4 = document.createElement("div");
+        payment4.id = "payment_details_4";
+        payment4.className = "invoice_company_bottom_payment_info_div_class";
+        payment4.style.display = "none";
+
+        payment4.innerHTML = `
+            <p>Please refer to above of your term of payment and settle your payment to our bank detail below</p>
+
+            <pre>Bank Details (IDR)</pre>
+            <pre>A/C Name                     : PT. SEASON TRAVEL JAYA</pre>
+            <pre>Bank Name                   : Mandiri</pre>
+            <pre>Account                        : 006-00-1287717-5</pre>
+            <pre>Swift                             : BMRIIDIA</pre>
+
+            <br>
+            <hr>
+            <br>
+
+            <pre>Bank Details (USD)</pre>
+            <pre>A/C Name                     : PT. SEASON TRAVEL JAYA</pre>
+            <pre>Bank Name                   : Mandiri</pre>
+            <pre>Account                        : 006-00-1287719-1</pre>
+            <pre>Swift                            : BMRIIDJA</pre>
+
+            <br>
+
+            <p style="font-weight: bolder;">CANCELLATION & NO SHOW POLICY</p>
+
+            <p>* Cancellation or change in length of stay within 14 days prior to arrival on the normal season or 21 days prior to arrival on high season (June-Aug) will charge 100% penalty</p>
+            <p>* No-show charges: 100% of Booking Amount</p>
+            <p>* Domestic flight cancellation depends on the flight refund policy</p>
+        `;
+
+        const storeMonthEl = document.getElementById("store_google_sheet_inv_orignal_month_value");
+        const section = document.getElementById("whole_invoice_company_section_id");
+
+        if (storeMonthEl) {
+            section.insertBefore(payment4, storeMonthEl);
+            console.log("[convertToUSDDetails] payment_details_4 inserted before store elements.");
+        } else {
+            section.appendChild(payment4);
+            console.log("[convertToUSDDetails] payment_details_4 appended at end of section.");
+        }
+    } else {
+        console.log("[convertToUSDDetails] payment_details_4 found in DOM.");
+    }
+
+    const allPaymentDivs = document.querySelectorAll(".invoice_company_bottom_payment_info_div_class");
+
+    if (btn.innerText === "Convert USD") {
+        console.log("[convertToUSDDetails] Switching to USD view...");
+
+        // Remember which div was visible before switching
+        let previousDivId = null;
+        allPaymentDivs.forEach(div => {
+            if (div.style.display !== "none") {
+                previousDivId = div.id;
+                console.log(`[convertToUSDDetails] Previously visible div: #${div.id}`);
+            }
+        });
+        btn.dataset.previousDiv = previousDivId;
+
+        // Hide all payment divs and show payment_details_4
+        allPaymentDivs.forEach(div => { div.style.display = "none"; });
+        payment4.style.display = "block";
+        console.log("[convertToUSDDetails] payment_details_4 is now visible, all others hidden.");
+
+        btn.innerText = "Back To Normal";
+        console.log("[convertToUSDDetails] Button text set to 'Back To Normal'.");
+
+    } else {
+        console.log("[convertToUSDDetails] Reverting to normal view...");
+
+        payment4.style.display = "none";
+        console.log("[convertToUSDDetails] payment_details_4 hidden.");
+
+        const previousDivId = btn.dataset.previousDiv;
+        if (previousDivId) {
+            const prevDiv = document.getElementById(previousDivId);
+            if (prevDiv) {
+                prevDiv.style.display = "block";
+                console.log(`[convertToUSDDetails] Restored previously visible div: #${previousDivId}`);
+            } else {
+                console.warn(`[convertToUSDDetails] Could not find previously visible div: #${previousDivId}`);
+            }
+        } else {
+            console.log("[convertToUSDDetails] No previously visible div recorded — nothing to restore.");
+        }
+
+        btn.innerText = "Convert USD";
+        console.log("[convertToUSDDetails] Button text set back to 'Convert USD'.");
+    }
+}
