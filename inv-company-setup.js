@@ -187,6 +187,9 @@ function openPdfDownloadBox() {
 
     if (document.getElementById("dataInput").value !== '' || new_or_imported_inv_company_variable !== 'new_invoice_company') {
 
+        const storedAgency = (document.getElementById('store_google_sheet_company_name')?.innerText || '').toUpperCase();
+        const isAttar = storedAgency.includes("ATTAR");
+
         /* in 7 Apr 2026 delete the first if and keep only the else (I used it to avoid error in old packages) */
         if (!document.getElementById("current_used_company_name_p_id")) {
 
@@ -199,7 +202,7 @@ function openPdfDownloadBox() {
             let revSpan = document.getElementById("current_used_rev_number_span_id").innerText;
 
             // Build PDF name
-            let pdfName = `Proforma INV ${companyName} indo_${invNumber}_${month}_${year}`;
+            let pdfName = `${isAttar ? '' : 'Proforma '}INV ${companyName} indo_${invNumber}_${month}_${year}`;
             if (revSpan) pdfName += ` ${revSpan}`;
             pdfName += ` ${clientName}`;
 
@@ -217,7 +220,7 @@ function openPdfDownloadBox() {
             let revSpan = document.getElementById("current_used_rev_number_span_id").innerText;
 
             // Build PDF name
-            let pdfName = `Proforma INV ${companyName} indo_${invNumber}_${month}_${year}`;
+            let pdfName = `${isAttar ? '' : 'Proforma '}INV ${companyName} indo_${invNumber}_${month}_${year}`;
             if (revSpan) pdfName += ` ${revSpan}`;
             pdfName += ` ${clientName}`;
 
@@ -1294,6 +1297,10 @@ function processInvoiceData(data) {
             }
         }
 
+        const proformaInvoiceTitle = document.getElementById("proforma_invoice_title_p_id");
+        if (proformaInvoiceTitle) {
+            proformaInvoiceTitle.innerText = agencyUpper.includes("ATTAR") ? "INVOICE" : "PROFORMA INVOICE";
+        }
 
 
 
@@ -1321,9 +1328,9 @@ function processInvoiceData(data) {
         const paymentDetails3 = document.getElementById("payment_details_3");
         const paymentDetails4 = document.getElementById("payment_details_4");
 
-        if (agencyUpper.includes("ATTAR")) {
+        if (agencyUpper.includes("ATTAR") || agencyUpper.includes("RAWNAQ")) {
 
-            /* For ATTAR: hide all standard payment divs and show only payment_details_4 */
+            /* For ATTAR & RAWNAQ: hide all standard payment divs and show only payment_details_4 */
             if (paymentDetails3) {
                 paymentDetails1.style.display = "none";
                 paymentDetails2.style.display = "none";
