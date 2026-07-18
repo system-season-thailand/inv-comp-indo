@@ -188,7 +188,7 @@ function openPdfDownloadBox() {
     if (document.getElementById("dataInput").value !== '' || new_or_imported_inv_company_variable !== 'new_invoice_company') {
 
         const storedAgency = (document.getElementById('store_google_sheet_company_name')?.innerText || '').toUpperCase();
-        const isAttar = storedAgency.includes("ATTAR");
+        const isAttar = /\bATTAR\b/.test(storedAgency);
 
         /* in 7 Apr 2026 delete the first if and keep only the else (I used it to avoid error in old packages) */
         if (!document.getElementById("current_used_company_name_p_id")) {
@@ -1257,7 +1257,7 @@ function processInvoiceData(data) {
             }
 
 
-        } else if (agencyUpper.includes("ATTAR")) {
+        } else if (/\bATTAR\b/.test(agencyUpper)) {
 
             /* Show Attar address div above proforma invoice, keep the original season logo */
             if (top_left_inv_company_orignal_div_id) {
@@ -1299,7 +1299,9 @@ function processInvoiceData(data) {
 
         const proformaInvoiceTitle = document.getElementById("proforma_invoice_title_p_id");
         if (proformaInvoiceTitle) {
-            proformaInvoiceTitle.innerText = agencyUpper.includes("ATTAR") ? "INVOICE" : "PROFORMA INVOICE";
+            proformaInvoiceTitle.innerText = /\bATTAR\b/.test(agencyUpper)
+                ? "INVOICE"
+                : "PROFORMA INVOICE";
         }
 
 
