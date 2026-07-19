@@ -1190,11 +1190,32 @@ function processInvoiceData(data) {
 
         // Determine the currency
         let currency = "SAR"; // Default currency
-        if (agencyUpper.includes("AL EZZ") || agencyUpper.includes("ALEZZ") || agencyUpper.includes("ALAM ALRAYA") || agencyUpper.includes("LUXE CHECK")) {
+        if (
+            /\bAL EZZ\b/.test(agencyUpper) ||
+            /\bALEZZ\b/.test(agencyUpper) ||
+            /\bALAM ALRAYA\b/.test(agencyUpper) ||
+            /\bALAM AL RAYA\b/.test(agencyUpper) ||
+            /\bRAWNAQ\b/.test(agencyUpper) ||
+            /\bLUXE CHECK\b/.test(agencyUpper)
+        ) {
             currency = "USD";
-        } else if (guestByUpper.includes("RAYAN") || guestByUpper.includes("TURKI") || guestByUpper.includes("TURKEY") || guestByUpper.includes("TARIQ") || guestByUpper.includes("SECRET") || guestByUpper.includes("TURKY")) {
+        } else if (
+            /\bRAYAN\b/.test(guestByUpper) ||
+            /\bTURKI\b/.test(guestByUpper) ||
+            /\bTURKEY\b/.test(guestByUpper) ||
+            /\bTARIQ\b/.test(guestByUpper) ||
+            /\bSECRET\b/.test(guestByUpper) ||
+            /\bTURKY\b/.test(guestByUpper)
+        ) {
             currency = "IDR";
-        } else if (agencyUpper.includes("RAYAN") || agencyUpper.includes("TURKI") || agencyUpper.includes("TURKEY") || agencyUpper.includes("TARIQ") || agencyUpper.includes("SECRET") || agencyUpper.includes("TURKY")) {
+        } else if (
+            /\bRAYAN\b/.test(agencyUpper) ||
+            /\bTURKI\b/.test(agencyUpper) ||
+            /\bTURKEY\b/.test(agencyUpper) ||
+            /\bTARIQ\b/.test(agencyUpper) ||
+            /\bSECRET\b/.test(agencyUpper) ||
+            /\bTURKY\b/.test(agencyUpper)
+        ) {
             currency = "IDR";
         }
 
@@ -1330,7 +1351,7 @@ function processInvoiceData(data) {
         const paymentDetails3 = document.getElementById("payment_details_3");
         const paymentDetails4 = document.getElementById("payment_details_4");
 
-        if (agencyUpper.includes("ATTAR") || agencyUpper.includes("RAWNAQ")) {
+        if (/\bRAWNAQ\b/.test(agencyUpper)) {
 
             /* For ATTAR & RAWNAQ: hide all standard payment divs and show only payment_details_4 */
             if (paymentDetails3) {
