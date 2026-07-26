@@ -316,6 +316,111 @@ const loadAllData = async () => {
 
 
 
+// Paginated list loading: only 500 records are requested at a time.
+const invoiceListState = { pageSize: 500, offset: 0, query: '', hasMore: true, loading: false, requestId: 0, names: new Set() };
+
+const showInvoiceListLoading = (container) => {
+    const indicator = document.createElement('div');
+    indicator.className = 'invoice_data_loading_indicator';
+    indicator.textContent = 'Loading Data ⟳';
+    indicator.style.cssText = 'padding: 12px; text-align: center; font-weight: bold;';
+    container.appendChild(indicator);
+};
+
+const clearInvoiceListLoading = (container) => container.querySelector('.invoice_data_loading_indicator')?.remove();
+
+const createInvoiceListItem = (row) => {
+    const h3 = document.createElement('h3');
+    const invoiceYear = getInvoiceYearFromContent(row.content);
+    const invoiceNumber = getInvoiceNumberFromName(row.name);
+    h3.textContent = invoiceYear ? `${invoiceYear.slice(-2)}__${row.name}` : row.name;
+    h3.dataset.databaseName = row.name;
+    h3.dataset.invoiceKey = invoiceYear ? `${invoiceYear}__${invoiceNumber}` : invoiceNumber;
+    h3.onclick = function () { importContentForSelectedName(this); };
+    return h3;
+};
+
+const fetchInvoiceListPage = async (searchText = '', reset = false) => {
+    const container = document.getElementById('all_google_sheet_stored_data_names_for_importing_data_div');
+    if (!container || (invoiceListState.loading && !reset) || (!reset && !invoiceListState.hasMore)) return;
+
+    const queryText = searchText.trim();
+    if (reset) {
+        invoiceListState.requestId++;
+        invoiceListState.offset = 0;
+        invoiceListState.query = queryText;
+        invoiceListState.hasMore = true;
+        invoiceListState.names.clear();
+        allFetchedData = [];
+        container.innerHTML = '';
+    }
+
+    const requestId = invoiceListState.requestId;
+    invoiceListState.loading = true;
+    showInvoiceListLoading(container);
+    let request = supabase.from('inv_comp_indo').select('name, inv_company_indo_content');
+    queryText.replace(/^\d{2}__/, '').split(/\s+/).filter(Boolean).forEach(term => {
+        request = request.ilike('name', `%${term}%`);
+    });
+    const { data, error } = await request.range(invoiceListState.offset, invoiceListState.offset + invoiceListState.pageSize - 1);
+
+    if (requestId !== invoiceListState.requestId) return;
+    invoiceListState.loading = false;
+    clearInvoiceListLoading(container);
+    if (error) {
+        console.error('Could not load invoice names from Supabase:', error);
+        container.insertAdjacentHTML('beforeend', '<p>Could not load data. Please try again.</p>');
+        return;
+    }
+
+    const rows = data || [];
+    invoiceListState.offset += rows.length;
+    invoiceListState.hasMore = rows.length === invoiceListState.pageSize;
+    rows.forEach(row => {
+        const name = row.name?.trim();
+        if (!name || invoiceListState.names.has(name)) return;
+        invoiceListState.names.add(name);
+        const normalizedRow = { name, content: row.inv_company_indo_content };
+        allFetchedData.push(normalizedRow);
+        container.appendChild(createInvoiceListItem(normalizedRow));
+    });
+    if (reset && rows.length === 0) container.insertAdjacentHTML('beforeend', '<p>No matching data found.</p>');
+};
+
+const loadPagedInvoiceData = async () => {
+    const container = document.getElementById('all_google_sheet_stored_data_names_for_importing_data_div');
+    const searchInput = document.getElementById('import_google_sheet_data_names_search_bar_input_id');
+    if (!container || !searchInput) return;
+
+    let searchTimer;
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => fetchInvoiceListPage(searchInput.value, true), 300);
+    });
+    container.addEventListener('scroll', () => {
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 80) {
+            fetchInvoiceListPage(invoiceListState.query);
+        }
+    });
+    await fetchInvoiceListPage(searchInput.value, true);
+};
+
+const getRevisionCount = async (invoiceKey) => {
+    const [invoiceYear, invoiceNumber] = invoiceKey.split('__');
+    const { data, error } = await supabase
+        .from('inv_comp_indo')
+        .select('name, inv_company_indo_content')
+        .ilike('name', `${invoiceNumber}%`);
+    if (error) {
+        console.error('Could not count invoice revisions:', error);
+        return 0;
+    }
+    return (data || []).filter(row =>
+        getInvoiceNumberFromName(row.name || '') === invoiceNumber &&
+        getInvoiceYearFromContent(row.inv_company_indo_content) === invoiceYear
+    ).length;
+};
+
 // Function to fetch content for a specific name from Supabase
 const fetchContentForName = async (name) => {
     try {
@@ -429,19 +534,10 @@ const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
         /* Set Rev in the inv number */
         let revNumElement = document.querySelector("#current_used_rev_number_span_id");
 
-        // Get all h3 elements from the dropdown
-        const allH3Elements = document.querySelectorAll('#all_google_sheet_stored_data_names_for_importing_data_div h3');
-
-        // Match revisions by the invoice year and invoice number together.
         const selectedInvoiceKey = clickedGoogleSheetDataName.dataset.invoiceKey;
-
-        // Count revisions only for the same year + invoice-number combination.
-        let similarCount = 0;
-        allH3Elements.forEach(h3Element => {
-            if (h3Element.dataset.invoiceKey === selectedInvoiceKey) {
-                similarCount++;
-            }
-        });
+        // The list is paginated, so count matching revisions in Supabase rather
+        // than only among the h3 elements currently displayed.
+        const similarCount = await getRevisionCount(selectedInvoiceKey);
 
         /* Set the rev values in the element based on the count of similar elements */
         revNumElement.innerText = `Rev${similarCount}`;
@@ -483,5 +579,5 @@ const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
     setupLogoImagePicker();
 };
 
-// Call loadAllData to start fetching
-loadAllData();
+// Start with the first 500 records; further pages load on scroll or search.
+loadPagedInvoiceData();
