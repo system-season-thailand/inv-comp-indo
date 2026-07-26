@@ -181,6 +181,36 @@ function cleanHTML(html) {
 // Global array to store all fetched data
 let allFetchedData = [];
 
+// Find the first dated invoice row in the main table. Each row type stores its
+// date in its first <p>, so this works without the optional hotel-row container.
+const getInvoiceYearDetailsFromContent = (content) => {
+    const documentFragment = new DOMParser().parseFromString(content || '', 'text/html');
+    const allRowsContainer = documentFragment.querySelector('#invoice_company_main_table_div_id');
+    const invoiceRows = [...(allRowsContainer?.querySelectorAll('.invoice_company_row_div_class') || [])];
+    const rowDetails = invoiceRows.map((row, index) => ({
+        rowNumber: index + 1,
+        paragraphTexts: [...row.querySelectorAll('p')].map(paragraph => paragraph.textContent.replace(/\s+/g, ' ').trim()),
+        html: row.outerHTML
+    }));
+
+    for (const rowDetail of rowDetails) {
+        const rowDate = rowDetail.paragraphTexts[0] || '';
+        const yearTokens = rowDate.match(/\b(?:19|20)\d{2}\b/g) || [];
+        const year = yearTokens[0];
+
+        if (year) {
+            return { firstDatedRow: rowDetail.rowNumber, rowDate, yearTokens, year, rowDetails };
+        }
+    }
+
+    console.warn('Could not determine invoice year from an invoice row in #invoice_company_main_table_div_id');
+    return { firstDatedRow: null, rowDate: '', yearTokens: [], year: '', rowDetails };
+};
+
+const getInvoiceYearFromContent = (content) => getInvoiceYearDetailsFromContent(content).year;
+
+const getInvoiceNumberFromName = (name) => name.trim().match(/^\d+/)?.[0] || name.trim().split(/[\s-]/)[0];
+
 const fetchBatchFromSupabase = async () => {
     const batchSize = 1000;            // How many rows to fetch per request
     let start = 0;                     // Starting index for the current batch
@@ -190,7 +220,7 @@ const fetchBatchFromSupabase = async () => {
     while (true) {
         const { data, error } = await supabase
             .from('inv_comp_indo')
-            .select('name')  // Only fetch the name column for faster loading
+            .select('name, inv_company_indo_content')
             .range(start, start + batchSize - 1); // Fetch the current 1,000-row window
 
         if (error) {
@@ -203,10 +233,11 @@ const fetchBatchFromSupabase = async () => {
             break;
         }
 
-        // Map and push current batch into the global store (only names)
+        // Keep the content so the list label can use the first invoice-row date's year.
         allFetchedData.push(
             ...data.map(row => ({
-                name: row.name?.trim()
+                name: row.name?.trim(),
+                content: row.inv_company_indo_content
             }))
         );
 
@@ -242,7 +273,11 @@ const loadAllData = async () => {
             allDataSet.add(row.name);
 
             const h3 = document.createElement("h3");
-            h3.textContent = row.name;
+            const invoiceYear = getInvoiceYearFromContent(row.content);
+            const invoiceNumber = getInvoiceNumberFromName(row.name);
+            h3.textContent = invoiceYear ? `${invoiceYear.slice(-2)}__${row.name}` : row.name;
+            h3.dataset.databaseName = row.name;
+            h3.dataset.invoiceKey = invoiceYear ? `${invoiceYear}__${invoiceNumber}` : invoiceNumber;
 
             h3.onclick = function () {
                 /* console.log(`📥 You clicked: ${row.name}`); */
@@ -311,7 +346,7 @@ const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
     if (clickedGoogleSheetDataName.style.backgroundColor === 'rgb(0, 155, 0)') {
 
         // Get the selected name
-        const selectedName = clickedGoogleSheetDataName.innerText.trim();
+        const selectedName = clickedGoogleSheetDataName.dataset.databaseName || clickedGoogleSheetDataName.innerText.trim();
 
         // Play a sound effect
         playSoundEffect('success');
@@ -320,6 +355,25 @@ const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
         const content = await fetchContentForName(selectedName);
 
         if (content) {
+            const invoiceYearDetails = getInvoiceYearDetailsFromContent(content);
+            console.groupCollapsed(`[Invoice year debug] ${selectedName}`);
+            console.log({
+                selectedDatabaseName: selectedName,
+                displayedLabel: clickedGoogleSheetDataName.innerText.trim(),
+                revisionInvoiceKey: clickedGoogleSheetDataName.dataset.invoiceKey || '',
+                firstDatedRow: invoiceYearDetails.firstDatedRow,
+                dateTextUsed: invoiceYearDetails.rowDate,
+                detectedYearTokens: invoiceYearDetails.yearTokens,
+                detectedInvoiceYear: invoiceYearDetails.year
+            });
+            console.table(invoiceYearDetails.rowDetails.map(({ rowNumber, paragraphTexts }) => ({
+                rowNumber,
+                firstParagraph: paragraphTexts[0] || '',
+                allParagraphs: paragraphTexts.join(' | ')
+            })));
+            console.log('Complete dated invoice row HTML:', invoiceYearDetails.rowDetails[invoiceYearDetails.firstDatedRow - 1]?.html || '(no dated row found)');
+            console.groupEnd();
+
             /* Insert the imported data into the 'whole_invoice_company_section_id' */
             wholeInvoiceSection.innerHTML = content;
         } else {
@@ -378,15 +432,13 @@ const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
         // Get all h3 elements from the dropdown
         const allH3Elements = document.querySelectorAll('#all_google_sheet_stored_data_names_for_importing_data_div h3');
 
-        // Extract the first 4 digits from the selected h3 element
-        const selectedH3Text = clickedGoogleSheetDataName.innerText.trim();
-        const first4Digits = selectedH3Text.substring(0, 4);
+        // Match revisions by the invoice year and invoice number together.
+        const selectedInvoiceKey = clickedGoogleSheetDataName.dataset.invoiceKey;
 
-        // Count how many h3 elements start with the same first 4 digits
+        // Count revisions only for the same year + invoice-number combination.
         let similarCount = 0;
         allH3Elements.forEach(h3Element => {
-            const h3Text = h3Element.innerText.trim();
-            if (h3Text.startsWith(first4Digits)) {
+            if (h3Element.dataset.invoiceKey === selectedInvoiceKey) {
                 similarCount++;
             }
         });
