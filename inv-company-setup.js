@@ -188,7 +188,7 @@ function openPdfDownloadBox() {
     if (document.getElementById("dataInput").value !== '' || new_or_imported_inv_company_variable !== 'new_invoice_company') {
 
         const storedAgency = (document.getElementById('store_google_sheet_company_name')?.innerText || '').toUpperCase();
-        const isAttar = /\bATTAR\b/.test(storedAgency);
+        const isAttarOrAthaar = /\b(?:ATTAR|ATHAAR)\b/i.test(storedAgency);
 
         /* in 7 Apr 2026 delete the first if and keep only the else (I used it to avoid error in old packages) */
         if (!document.getElementById("current_used_company_name_p_id")) {
@@ -202,7 +202,7 @@ function openPdfDownloadBox() {
             let revSpan = document.getElementById("current_used_rev_number_span_id").innerText;
 
             // Build PDF name
-            let pdfName = `${isAttar ? '' : 'Proforma '}INV ${companyName} indo_${invNumber}_${month}_${year}`;
+            let pdfName = `${isAttarOrAthaar ? '' : 'Proforma '}INV ${companyName} indo_${invNumber}_${month}_${year}`;
             if (revSpan) pdfName += ` ${revSpan}`;
             pdfName += ` ${clientName}`;
 
@@ -220,7 +220,7 @@ function openPdfDownloadBox() {
             let revSpan = document.getElementById("current_used_rev_number_span_id").innerText;
 
             // Build PDF name
-            let pdfName = `${isAttar ? '' : 'Proforma '}INV ${companyName} indo_${invNumber}_${month}_${year}`;
+            let pdfName = `${isAttarOrAthaar ? '' : 'Proforma '}INV ${companyName} indo_${invNumber}_${month}_${year}`;
             if (revSpan) pdfName += ` ${revSpan}`;
             pdfName += ` ${clientName}`;
 
@@ -1196,6 +1196,8 @@ function processInvoiceData(data) {
             /\bALAM ALRAYA\b/.test(agencyUpper) ||
             /\bALAM AL RAYA\b/.test(agencyUpper) ||
             /\bRAWNAQ\b/.test(agencyUpper) ||
+            /\bALFAKHAMAH\b/.test(agencyUpper) ||
+            /\bATTAR\b/.test(agencyUpper) ||
             /\bLUXE CHECK\b/.test(agencyUpper)
         ) {
             currency = "USD";
@@ -1320,7 +1322,7 @@ function processInvoiceData(data) {
 
         const proformaInvoiceTitle = document.getElementById("proforma_invoice_title_p_id");
         if (proformaInvoiceTitle) {
-            proformaInvoiceTitle.innerText = /\bATTAR\b/.test(agencyUpper)
+            proformaInvoiceTitle.innerText = /\b(?:ATTAR|ATHAAR)\b/i.test(agencyUpper)
                 ? "INVOICE"
                 : "PROFORMA INVOICE";
         }
