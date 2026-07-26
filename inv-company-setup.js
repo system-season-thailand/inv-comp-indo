@@ -1197,6 +1197,7 @@ function processInvoiceData(data) {
             /\bALAM AL RAYA\b/.test(agencyUpper) ||
             /\bRAWNAQ\b/.test(agencyUpper) ||
             /\bALFAKHAMAH\b/.test(agencyUpper) ||
+            /\bAL FAKHAMAH\b/.test(agencyUpper) ||
             /\bATTAR\b/.test(agencyUpper) ||
             /\bLUXE CHECK\b/.test(agencyUpper)
         ) {
@@ -1230,6 +1231,7 @@ function processInvoiceData(data) {
         /* Get the elements to update them based on the company value */
         const top_left_inv_company_orignal_div_id = document.getElementById("top_left_inv_company_orignal_div_id");
         const top_left_inv_company_golden_div_id = document.getElementById("top_left_inv_company_golden_div_id");
+        const top_left_inv_company_alfakhamah_div_id = document.getElementById("top_left_inv_company_alfakhamah_div_id");
         const invoice_company_golden_under_guest_name_info_div = document.getElementById("invoice_company_golden_under_guest_name_info_div");
         const invoice_company_al_ghazali_under_guest_name_info_div = document.getElementById("invoice_company_al_ghazali_under_guest_name_info_div");
         const invoice_company_attar_address_above_proforma_invoice_div = document.getElementById("invoice_company_attar_address_above_proforma_invoice_div");
@@ -1243,6 +1245,7 @@ function processInvoiceData(data) {
             if (top_left_inv_company_orignal_div_id) {
 
                 top_left_inv_company_orignal_div_id.style.display = "none";
+                top_left_inv_company_alfakhamah_div_id.style.display = "none";
                 top_left_inv_company_golden_div_id.style.display = "flex";
                 invoice_company_golden_under_guest_name_info_div.style.display = "block";
 
@@ -1265,6 +1268,7 @@ function processInvoiceData(data) {
             if (invoice_company_al_ghazali_under_guest_name_info_div) {
 
                 top_left_inv_company_orignal_div_id.style.display = "none";
+                top_left_inv_company_alfakhamah_div_id.style.display = "none";
                 top_left_inv_company_golden_div_id.style.display = "flex";
                 invoice_company_golden_under_guest_name_info_div.style.display = "none";
 
@@ -1287,6 +1291,7 @@ function processInvoiceData(data) {
 
                 top_left_inv_company_orignal_div_id.style.display = "flex";
                 top_left_inv_company_golden_div_id.style.display = "none";
+                top_left_inv_company_alfakhamah_div_id.style.display = "none";
                 invoice_company_golden_under_guest_name_info_div.style.display = "none";
 
                 if (invoice_company_al_ghazali_under_guest_name_info_div) {
@@ -1300,12 +1305,31 @@ function processInvoiceData(data) {
             }
 
 
+        } else if (
+            /\bALFAKHAMAH\b/i.test(agencyUpper) ||
+            /\bAL FAKHAMAH\b/i.test(agencyUpper)
+        ) {
+
+            top_left_inv_company_orignal_div_id.style.display = "none";
+            top_left_inv_company_alfakhamah_div_id.style.display = "flex";
+            invoice_company_golden_under_guest_name_info_div.style.display = "none";
+
+            if (invoice_company_al_ghazali_under_guest_name_info_div) {
+                invoice_company_al_ghazali_under_guest_name_info_div.style.display = "none";
+            }
+
+            if (invoice_company_attar_address_above_proforma_invoice_div) {
+                invoice_company_attar_address_above_proforma_invoice_div.style.display = "none";
+            }
+
+
         } else {
             /* in 2026 delete the following if condition (I used it tp avoid error in old inv) */
             if (top_left_inv_company_orignal_div_id) {
 
                 top_left_inv_company_orignal_div_id.style.display = "flex";
                 top_left_inv_company_golden_div_id.style.display = "none";
+                top_left_inv_company_alfakhamah_div_id.style.display = "none";
                 invoice_company_golden_under_guest_name_info_div.style.display = "none";
 
 
