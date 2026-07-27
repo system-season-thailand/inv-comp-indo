@@ -178,8 +178,10 @@ function cleanHTML(html) {
 
 
 
-// Global array to store all fetched data
+// Global array to store all fetched data (every row loaded so far, newest first)
 let allFetchedData = [];
+// Just the newest page (what's actually shown in the dropdown before any search)
+let firstPageRows = [];
 
 // Find the first dated invoice row in the main table. Each row type stores its
 // date in its first <p>, so this works without the optional hotel-row container.
@@ -316,8 +318,12 @@ const loadAllData = async () => {
 
 
 
-// Paginated list loading: only 500 records are requested at a time.
-const invoiceListState = { pageSize: 500, offset: 0, query: '', hasMore: true, loading: false, requestId: 0, names: new Set() };
+// Shows the newest 300 saved invoices right away (a smaller first page for the fastest
+// possible first paint), then keeps loading older pages of 500 into `allFetchedData` in
+// the background (without touching the DOM) so the search bar can filter across
+// everything without waiting on further network requests.
+const FIRST_PAGE_SIZE = 300;
+const invoiceListState = { pageSize: 500, offset: 0, hasMore: true, names: new Set() };
 
 const showInvoiceListLoading = (container) => {
     const indicator = document.createElement('div');
@@ -329,44 +335,74 @@ const showInvoiceListLoading = (container) => {
 
 const clearInvoiceListLoading = (container) => container.querySelector('.invoice_data_loading_indicator')?.remove();
 
+// Parsing `content` with DOMParser is expensive, so do it once per row here (at fetch
+// time) instead of on every re-render — filtering/search then stays a cheap string match.
+const buildInvoiceListEntry = (name, content) => {
+    const invoiceYear = getInvoiceYearFromContent(content);
+    const invoiceNumber = getInvoiceNumberFromName(name);
+    return {
+        name,
+        label: invoiceYear ? `${invoiceYear.slice(-2)}__${name}` : name,
+        invoiceKey: invoiceYear ? `${invoiceYear}__${invoiceNumber}` : invoiceNumber
+    };
+};
+
 const createInvoiceListItem = (row) => {
     const h3 = document.createElement('h3');
-    const invoiceYear = getInvoiceYearFromContent(row.content);
-    const invoiceNumber = getInvoiceNumberFromName(row.name);
-    h3.textContent = invoiceYear ? `${invoiceYear.slice(-2)}__${row.name}` : row.name;
+    h3.textContent = row.label;
     h3.dataset.databaseName = row.name;
-    h3.dataset.invoiceKey = invoiceYear ? `${invoiceYear}__${invoiceNumber}` : invoiceNumber;
+    h3.dataset.invoiceKey = row.invoiceKey;
     h3.onclick = function () { importContentForSelectedName(this); };
     return h3;
 };
 
-const fetchInvoiceListPage = async (searchText = '', reset = false) => {
-    const container = document.getElementById('all_google_sheet_stored_data_names_for_importing_data_div');
-    if (!container || (invoiceListState.loading && !reset) || (!reset && !invoiceListState.hasMore)) return;
+// Renders a fixed set of rows (used for search results and for restoring the full
+// list when the search bar is cleared) without touching Supabase.
+const renderInvoiceRows = (container, rows) => {
+    container.innerHTML = '';
+    if (rows.length === 0) {
+        container.insertAdjacentHTML('beforeend', '<p>No matching data found.</p>');
+        return;
+    }
+    rows.forEach(row => container.appendChild(createInvoiceListItem(row)));
+};
 
-    const queryText = searchText.trim();
-    if (reset) {
-        invoiceListState.requestId++;
-        invoiceListState.offset = 0;
-        invoiceListState.query = queryText;
-        invoiceListState.hasMore = true;
-        invoiceListState.names.clear();
-        allFetchedData = [];
-        container.innerHTML = '';
+// Filters the client-side `allFetchedData` array instead of querying Supabase again.
+const applyInvoiceSearchFilter = () => {
+    const container = document.getElementById('all_google_sheet_stored_data_names_for_importing_data_div');
+    const searchInput = document.getElementById('import_google_sheet_data_names_search_bar_input_id');
+    if (!container || !searchInput) return;
+
+    const queryText = searchInput.value.trim().replace(/^\d{2}__/, '');
+    if (!queryText) {
+        renderInvoiceRows(container, firstPageRows);
+        return;
     }
 
-    const requestId = invoiceListState.requestId;
-    invoiceListState.loading = true;
-    showInvoiceListLoading(container);
-    let request = supabase.from('inv_comp_indo').select('name, inv_company_indo_content');
-    queryText.replace(/^\d{2}__/, '').split(/\s+/).filter(Boolean).forEach(term => {
-        request = request.ilike('name', `%${term}%`);
+    const filterWords = queryText.toLowerCase().split(/\s+/).filter(Boolean);
+    const matches = allFetchedData.filter(row => {
+        const haystack = (row.name || '').toLowerCase();
+        return filterWords.every(word => haystack.includes(word));
     });
-    const { data, error } = await request.range(invoiceListState.offset, invoiceListState.offset + invoiceListState.pageSize - 1);
+    renderInvoiceRows(container, matches);
+};
 
-    if (requestId !== invoiceListState.requestId) return;
-    invoiceListState.loading = false;
+// Newest-first, with `name` as a tiebreaker so identical timestamps still paginate deterministically.
+const fetchInvoicePageFromSupabase = (offset, limit) => supabase
+    .from('inv_comp_indo')
+    .select('name, inv_company_indo_content')
+    .order('inv_company_user_current_date', { ascending: false })
+    .order('name', { ascending: true })
+    .range(offset, offset + limit - 1);
+
+const loadNewestInvoicePage = async () => {
+    const container = document.getElementById('all_google_sheet_stored_data_names_for_importing_data_div');
+    if (!container) return;
+
+    showInvoiceListLoading(container);
+    const { data, error } = await fetchInvoicePageFromSupabase(0, FIRST_PAGE_SIZE);
     clearInvoiceListLoading(container);
+
     if (error) {
         console.error('Could not load invoice names from Supabase:', error);
         container.insertAdjacentHTML('beforeend', '<p>Could not load data. Please try again.</p>');
@@ -374,17 +410,55 @@ const fetchInvoiceListPage = async (searchText = '', reset = false) => {
     }
 
     const rows = data || [];
-    invoiceListState.offset += rows.length;
-    invoiceListState.hasMore = rows.length === invoiceListState.pageSize;
+    invoiceListState.offset = rows.length;
+    invoiceListState.hasMore = rows.length === FIRST_PAGE_SIZE;
+
     rows.forEach(row => {
         const name = row.name?.trim();
         if (!name || invoiceListState.names.has(name)) return;
         invoiceListState.names.add(name);
-        const normalizedRow = { name, content: row.inv_company_indo_content };
+        const normalizedRow = buildInvoiceListEntry(name, row.inv_company_indo_content);
+        firstPageRows.push(normalizedRow);
         allFetchedData.push(normalizedRow);
-        container.appendChild(createInvoiceListItem(normalizedRow));
     });
-    if (reset && rows.length === 0) container.insertAdjacentHTML('beforeend', '<p>No matching data found.</p>');
+
+    if (firstPageRows.length === 0) {
+        container.insertAdjacentHTML('beforeend', '<p>No data found.</p>');
+        return;
+    }
+    renderInvoiceRows(container, firstPageRows);
+};
+
+// Keeps pulling older pages into `allFetchedData` after the newest page is already on
+// screen, purely so the search bar can eventually match against every saved invoice.
+// These rows are never appended to the visible dropdown.
+const loadRemainingInvoicesInBackground = async () => {
+    while (invoiceListState.hasMore) {
+        const { data, error } = await fetchInvoicePageFromSupabase(invoiceListState.offset, invoiceListState.pageSize);
+        if (error) {
+            console.error('Could not load invoice names from Supabase:', error);
+            break;
+        }
+
+        const rows = data || [];
+        invoiceListState.offset += rows.length;
+        invoiceListState.hasMore = rows.length === invoiceListState.pageSize;
+
+        let addedNewRow = false;
+        rows.forEach(row => {
+            const name = row.name?.trim();
+            if (!name || invoiceListState.names.has(name)) return;
+            invoiceListState.names.add(name);
+            allFetchedData.push(buildInvoiceListEntry(name, row.inv_company_indo_content));
+            addedNewRow = true;
+        });
+
+        const searchInput = document.getElementById('import_google_sheet_data_names_search_bar_input_id');
+        if (addedNewRow && searchInput && searchInput.value.trim()) {
+            // A search is active: re-filter so newly loaded matches show up too.
+            applyInvoiceSearchFilter();
+        }
+    }
 };
 
 const loadPagedInvoiceData = async () => {
@@ -392,17 +466,12 @@ const loadPagedInvoiceData = async () => {
     const searchInput = document.getElementById('import_google_sheet_data_names_search_bar_input_id');
     if (!container || !searchInput) return;
 
-    let searchTimer;
-    searchInput.addEventListener('input', () => {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => fetchInvoiceListPage(searchInput.value, true), 300);
-    });
-    container.addEventListener('scroll', () => {
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight - 80) {
-            fetchInvoiceListPage(invoiceListState.query);
-        }
-    });
-    await fetchInvoiceListPage(searchInput.value, true);
+    // Filtering is now a cheap in-memory string match (no HTML parsing, no network call),
+    // so it runs synchronously on every keystroke instead of waiting on a debounce timer.
+    searchInput.addEventListener('input', applyInvoiceSearchFilter);
+
+    await loadNewestInvoicePage();
+    loadRemainingInvoicesInBackground();
 };
 
 const getRevisionCount = async (invoiceKey) => {
