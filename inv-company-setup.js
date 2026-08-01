@@ -1208,6 +1208,7 @@ function processInvoiceData(data) {
             /\bTURKEY\b/.test(guestByUpper) ||
             /\bTARIQ\b/.test(guestByUpper) ||
             /\bSECRET\b/.test(guestByUpper) ||
+            /\bTRAVNUSA\b/.test(guestByUpper) ||
             /\bTURKY\b/.test(guestByUpper)
         ) {
             currency = "IDR";
