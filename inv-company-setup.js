@@ -190,6 +190,12 @@ function openPdfDownloadBox() {
         const storedAgency = (document.getElementById('store_google_sheet_company_name')?.innerText || '').toUpperCase();
         const isAttarOrAthaar = /\b(?:ATTAR|ATHAAR)\b/i.test(storedAgency);
 
+        /* The invoice number can also carry the sheet revision marker ("1565 Rev"), so keep
+           the plain number inside the "_month_year" part and add the marker after it */
+        const invNumberSpanText = (document.getElementById("current_used_inv_number_span_id")?.innerText || "").trim();
+        const invNumberRevisionMatch = invNumberSpanText.match(/\brev\.?\s*(\d*)/i);
+        const sheetRevisionMarker = invNumberRevisionMatch ? `Rev${invNumberRevisionMatch[1] || ""}` : "";
+
         /* in 7 Apr 2026 delete the first if and keep only the else (I used it to avoid error in old packages) */
         if (!document.getElementById("current_used_company_name_p_id")) {
 
@@ -203,6 +209,7 @@ function openPdfDownloadBox() {
 
             // Build PDF name
             let pdfName = `${isAttarOrAthaar ? '' : 'Proforma '}INV ${companyName} indo_${invNumber}_${month}_${year}`;
+            if (sheetRevisionMarker) pdfName += ` ${sheetRevisionMarker}`;
             if (revSpan) pdfName += ` ${revSpan}`;
             pdfName += ` ${clientName}`;
 
@@ -212,7 +219,7 @@ function openPdfDownloadBox() {
         } else {
             // Get all necessary values
             let companyName = document.getElementById("current_used_company_name_p_id").innerText;
-            let invNumber = document.getElementById("current_used_inv_number_span_id").innerText;
+            let invNumber = invNumberSpanText.replace(/\s*\brev\.?\s*\d*/i, "").trim();
             let month = document.getElementById("store_google_sheet_inv_orignal_month_value").innerText;
             let year = document.getElementById("store_google_sheet_inv_orignal_year_value").innerText;
             let clientNameRaw = document.getElementById("current_used_guest_name_p_id").innerText;
@@ -221,6 +228,7 @@ function openPdfDownloadBox() {
 
             // Build PDF name
             let pdfName = `${isAttarOrAthaar ? '' : 'Proforma '}INV ${companyName} indo_${invNumber}_${month}_${year}`;
+            if (sheetRevisionMarker) pdfName += ` ${sheetRevisionMarker}`;
             if (revSpan) pdfName += ` ${revSpan}`;
             pdfName += ` ${clientName}`;
 
@@ -286,15 +294,13 @@ function processInvoiceData(data) {
 
 
     /* Just in case the star cell copied was gust by of company by */
-    let guestBy, invoiceNo, clientName;
+    let guestBy, clientName;
 
     if (rows[0].startsWith("GUEST BY")) {
         guestBy = rows[0].split(":")[1].trim();
-        invoiceNo = rows[1].split(":")[1].trim().split("-").pop();
         clientName = rows[2].split(":")[1].trim();
     } else {
         guestBy = rows[1].split(":")[1].trim();
-        invoiceNo = rows[2].split(":")[1].trim().split("-").pop();
         clientName = rows[3].split(":")[1].trim();
     }
 
@@ -304,6 +310,25 @@ function processInvoiceData(data) {
     const invoiceLineRaw = rows[0].startsWith("GUEST BY") ? (rows[1] || "") : (rows[2] || "");
     const invoiceCode = invoiceLineRaw.split(":")[1]?.trim() || "";
     const codeParts = invoiceCode.split("-");
+
+    // The revision marker can be glued to the code in many shapes: "-Rev", " Rev",
+    // "(rev)", " ( Rev)", "-Rev2", "(Rev 2)" ... so it is pulled out on its own first and
+    // always written back as "Rev" / "Rev2". It is only read when it stands apart from the
+    // surrounding letters, so a prefix such as "REVA-26-VII-1431" is left alone.
+    const revisionMatch = invoiceCode.match(/(^|[^a-z])rev\.?\s*(\d*)(?![a-z])/i);
+    const sheetRevisionMarker = revisionMatch ? `Rev${revisionMatch[2] || ""}` : "";
+
+    // What is left once the marker (and its brackets) is dropped still holds the code, and
+    // the running number is its last group of digits:
+    // "FID-26-VII-1431 ( Rev)" -> "FID-26-VII-1431 " -> "1431".
+    const codeWithoutRevision = invoiceCode.replace(/(^|[^a-z])\(?\s*rev\.?\s*\d*\s*\)?(?![a-z])/i, "$1 ");
+    const invoiceNumberGroups = codeWithoutRevision.match(/\d+/g) || [];
+
+    /* Fall back to the last "-" segment when the code carries no number at all */
+    const invoiceNo = invoiceNumberGroups.length
+        ? invoiceNumberGroups[invoiceNumberGroups.length - 1]
+        : (codeWithoutRevision.split("-").map(part => part.trim()).filter(part => part !== "").pop() || "");
+
     const twoDigitYearFromCode = codeParts.length >= 2 ? codeParts[1] : null;
     const romanMonthFromCode = codeParts.length >= 3 ? codeParts[2].toUpperCase() : null;
     const inferredInvoiceYear = twoDigitYearFromCode && /^\d{2}$/.test(twoDigitYearFromCode)
@@ -329,7 +354,9 @@ function processInvoiceData(data) {
 
     // Always format invoice number to 4 digits with leading zeros
     const formattedInvoiceNo = invoiceNo.padStart(4, "0");
-    document.querySelector("#current_used_inv_number_span_id").innerText = formattedInvoiceNo;
+    document.querySelector("#current_used_inv_number_span_id").innerText = sheetRevisionMarker
+        ? `${formattedInvoiceNo} ${sheetRevisionMarker}`
+        : formattedInvoiceNo;
 
 
 
@@ -480,15 +507,23 @@ function processInvoiceData(data) {
             const lastLine = lines[lines.length - 1]; // Get the last row
 
 
-            // Regex to find SAR, USD, IDR, RP, or BAHT followed by a number (handle format like "SAR 1,880")
-            const match = lastLine.match(/(SAR|USD|IDR|RP|BAHT)\s*([\d.,]+)/i);
+            // Regex to find SAR, USD, IDR, RP, or BAHT followed either by a single amount
+            // ("SAR 1,880") or by several amounts added together
+            // ("SAR 6,960 + 500 + 8,900 + 2.500"). Anything after the chain, such as
+            // "(KURS 4,600)", is left out because it is not joined with a "+".
+            const match = lastLine.match(/(SAR|USD|IDR|RP|BAHT)\s*(\d[\d.,]*(?:\s*\+\s*\d[\d.,]*)*)/i);
 
 
 
 
 
             if (match) {
-                total = match[2].replace(/[.,]/g, '').trim(); // Remove commas and points and trim
+                // "," and "." are only digit separators here, so drop them from every amount
+                // and add the amounts up (6,960 + 500 + 8,900 + 2.500 -> 18860)
+                total = match[2]
+                    .split("+")
+                    .reduce((sum, amount) => sum + (parseInt(amount.replace(/[.,\s]/g, ''), 10) || 0), 0)
+                    .toString();
             }
 
 
@@ -1208,7 +1243,6 @@ function processInvoiceData(data) {
             /\bTURKEY\b/.test(guestByUpper) ||
             /\bTARIQ\b/.test(guestByUpper) ||
             /\bSECRET\b/.test(guestByUpper) ||
-            /\bTRAVNUSA\b/.test(guestByUpper) ||
             /\bTURKY\b/.test(guestByUpper)
         ) {
             currency = "IDR";
@@ -1218,6 +1252,7 @@ function processInvoiceData(data) {
             /\bTURKEY\b/.test(agencyUpper) ||
             /\bTARIQ\b/.test(agencyUpper) ||
             /\bSECRET\b/.test(agencyUpper) ||
+            /\bTRAVNUSA\b/.test(agencyUpper) ||
             /\bTURKY\b/.test(agencyUpper)
         ) {
             currency = "IDR";
