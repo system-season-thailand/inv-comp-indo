@@ -525,6 +525,9 @@ const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
         // Play a sound effect
         playSoundEffect('success');
 
+        /* Show the loading before the reading and the rebuilding hold the page still */
+        await showInvImportLoading();
+
         // Fetch the content for the selected name
         const content = await fetchContentForName(selectedName);
 
@@ -552,6 +555,7 @@ const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
             wholeInvoiceSection.innerHTML = content;
         } else {
             console.error("❌ Could not fetch content for:", selectedName);
+            hideInvImportLoading();
             return;
         }
 
@@ -616,6 +620,10 @@ const importContentForSelectedName = async (clickedGoogleSheetDataName) => {
 
         /* Make the value of the 'new_or_imported_inv_company_variable' to tell the system we're editing now */
         new_or_imported_inv_company_variable = 'imported_inv_company';
+
+
+        /* The invoice is fully rebuilt now */
+        hideInvImportLoading();
 
 
         /* Find Out What is The Value of Moneth & Year of The Imported INV Comp */
