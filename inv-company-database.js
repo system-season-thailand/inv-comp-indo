@@ -323,13 +323,98 @@ const loadAllData = async () => {
 // the background (without touching the DOM) so the search bar can filter across
 // everything without waiting on further network requests.
 const FIRST_PAGE_SIZE = 300;
-const invoiceListState = { pageSize: 500, offset: 0, hasMore: true, names: new Set() };
+// `allRowsLoaded` stays false while pages are still on their way, which is what keeps
+// the "No matching data found." text away from a half filled `allFetchedData`.
+const invoiceListState = { pageSize: 500, offset: 0, hasMore: true, allRowsLoaded: false, names: new Set() };
+
+const INVOICE_LOADING_INDICATOR_STYLE_ID = 'invoice_data_loading_indicator_style';
+
+const addInvoiceListLoadingStyle = () => {
+    if (document.getElementById(INVOICE_LOADING_INDICATOR_STYLE_ID)) return;
+
+    const loadingIndicatorStyle = document.createElement('style');
+    loadingIndicatorStyle.id = INVOICE_LOADING_INDICATOR_STYLE_ID;
+    loadingIndicatorStyle.textContent = `
+        .invoice_data_loading_indicator {
+            width: 100%;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            direction: ltr;
+            font-weight: bold;
+            box-sizing: border-box;
+        }
+
+        .invoice_data_loading_indicator_spinner {
+            width: 18px;
+            height: 18px;
+            flex: none;
+            border: 3px solid rgba(0, 0, 0, 0.15);
+            border-top-color: rgb(0, 155, 0);
+            border-radius: 50%;
+            animation: invoice_data_loading_indicator_spin 0.8s linear infinite;
+        }
+
+        .invoice_data_loading_indicator_text {
+            animation: invoice_data_loading_indicator_fade 1.4s ease-in-out infinite;
+        }
+
+        .invoice_data_loading_indicator_dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .invoice_data_loading_indicator_dots i {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: currentColor;
+            animation: invoice_data_loading_indicator_bounce 1.4s ease-in-out infinite;
+        }
+
+        .invoice_data_loading_indicator_dots i:nth-child(2) { animation-delay: 0.2s; }
+        .invoice_data_loading_indicator_dots i:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes invoice_data_loading_indicator_spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes invoice_data_loading_indicator_fade {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.45; }
+        }
+
+        @keyframes invoice_data_loading_indicator_bounce {
+            0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+            40% { opacity: 1; transform: translateY(-4px); }
+        }
+
+        /* Users who asked their system for less movement only get the fading text */
+        @media (prefers-reduced-motion: reduce) {
+            .invoice_data_loading_indicator_spinner,
+            .invoice_data_loading_indicator_dots i {
+                animation: none;
+            }
+        }
+    `;
+
+    document.head.appendChild(loadingIndicatorStyle);
+};
 
 const showInvoiceListLoading = (container) => {
+    if (container.querySelector('.invoice_data_loading_indicator')) return;
+    addInvoiceListLoadingStyle();
+
     const indicator = document.createElement('div');
     indicator.className = 'invoice_data_loading_indicator';
-    indicator.textContent = 'Loading Data ⟳';
-    indicator.style.cssText = 'padding: 12px; text-align: center; font-weight: bold;';
+    indicator.innerHTML = `
+        <span class="invoice_data_loading_indicator_spinner"></span>
+        <span class="invoice_data_loading_indicator_text">Loading Data</span>
+        <span class="invoice_data_loading_indicator_dots"><i></i><i></i><i></i></span>
+    `;
     container.appendChild(indicator);
 };
 
@@ -361,6 +446,13 @@ const createInvoiceListItem = (row) => {
 const renderInvoiceRows = (container, rows) => {
     container.innerHTML = '';
     if (rows.length === 0) {
+        // Nothing matched, but pages are still arriving, so the invoice the user is after
+        // may simply not be in `allFetchedData` yet. The search runs again on its own once
+        // the last page lands, and only then can the miss be reported.
+        if (!invoiceListState.allRowsLoaded) {
+            showInvoiceListLoading(container);
+            return;
+        }
         container.insertAdjacentHTML('beforeend', '<p>No matching data found.</p>');
         return;
     }
@@ -422,7 +514,8 @@ const loadNewestInvoicePage = async () => {
         allFetchedData.push(normalizedRow);
     });
 
-    if (firstPageRows.length === 0) {
+    // Only an empty first page with no further pages behind it really means an empty table
+    if (firstPageRows.length === 0 && !invoiceListState.hasMore) {
         container.insertAdjacentHTML('beforeend', '<p>No data found.</p>');
         return;
     }
@@ -459,6 +552,13 @@ const loadRemainingInvoicesInBackground = async () => {
             applyInvoiceSearchFilter();
         }
     }
+
+    invoiceListState.allRowsLoaded = true;
+
+    // `allFetchedData` is complete now, so a list still showing the animated status has to
+    // be rendered one last time to settle on its real answer.
+    const container = document.getElementById('all_google_sheet_stored_data_names_for_importing_data_div');
+    if (container?.querySelector('.invoice_data_loading_indicator')) applyInvoiceSearchFilter();
 };
 
 const loadPagedInvoiceData = async () => {
